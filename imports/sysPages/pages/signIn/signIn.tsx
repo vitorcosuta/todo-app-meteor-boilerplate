@@ -4,19 +4,29 @@ import { useNavigate } from 'react-router-dom';
 import SysTextField from '../../../ui/components/sysFormFields/sysTextField/sysTextField';
 import SysForm from '../../../ui/components/sysForm/sysForm';
 import SysFormButton from '../../../ui/components/sysFormFields/sysFormButton/sysFormButton';
+import SysLink from '/imports/ui/components/sysLink/sysLink';
 import { signInSchema } from './signinsch';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
 import SysIcon from '../../../ui/components/sysIcon/sysIcon';
 import AuthContext, { IAuthContext } from '/imports/app/authProvider/authContext';
 import AppLayoutContext from '/imports/app/appLayoutProvider/appLayoutContext';
+import { sysSizing } from '/imports/ui/materialui/styles';
 
 const SignInPage: React.FC = () => {
 	const { showNotification } = useContext(AppLayoutContext);
 	const { user, signIn } = useContext<IAuthContext>(AuthContext);
 	const navigate = useNavigate();
-	const { Container, Content, FormContainer, FormWrapper } = SignInStyles;
+	const { 
+		Container,
+		Content, 
+		FormWrapper,
+		FormInput,
+		FormHelper,
+		Title,
+		CommonText,
+	} = SignInStyles;
 
 	const handleSubmit = ({ email, password }: { email: string; password: string }) => {
 		signIn(email, password, (err) => {
@@ -38,34 +48,60 @@ const SignInPage: React.FC = () => {
 	return (
 		<Container>
 			<Content>
-				<Typography variant="h1" display={'inline-flex'} gap={1}>
-					<Typography variant="inherit" color={(theme) => theme.palette.sysText?.tertiary}>
-						{'{'}
-					</Typography>
-					Boilerplate
-					<Typography variant="inherit" color="sysText.tertiary">
-						{'}'}
-					</Typography>
-				</Typography>
 
-				<FormContainer>
-					<Typography variant="h5">Acesse o sistema</Typography>
-					<SysForm schema={signInSchema} onSubmit={handleSubmit} debugAlerts={false}>
-						<FormWrapper>
-							<SysTextField name="email" label="Email" fullWidth placeholder="Digite seu email" />
-							<SysTextField label="Senha" fullWidth name="password" placeholder="Digite sua senha" type="password" />
-							<Button variant="text" sx={{ alignSelf: 'flex-end' }} onClick={handleForgotPassword}>
-								<Typography variant="link">Esqueci minha senha</Typography>
-							</Button>
-							<Box />
-							<SysFormButton variant="contained" color="primary" endIcon={<SysIcon name={'arrowForward'} />}>
-								Entrar
-							</SysFormButton>
-						</FormWrapper>
-					</SysForm>
-				</FormContainer>
+				<Title textAlign={'center'}>ToDo List</Title>
 
-				<Box component="img" src="/images/wireframe/synergia-logo.svg" sx={{ width: '100%', maxWidth: '400px' }} />
+				<CommonText display={'block'} textAlign={'center'}>
+					<Typography variant='inherit'>
+						Boas-vindas à sua lista de tarefas.
+					</Typography>
+
+					<Typography variant='inherit'>
+						Insira seu e-mail e senha para efetuar o login.
+					</Typography>
+				</CommonText>
+
+				<SysForm schema={signInSchema} onSubmit={handleSubmit} debugAlerts={false}>
+					<FormWrapper>
+						<FormInput>
+							<SysTextField 
+								name="email" 
+								label="Email" 
+								fullWidth 
+								placeholder="Digite seu email"
+							/>
+						</FormInput>
+						
+						<FormInput>
+							<SysTextField 
+								label="Senha" 
+								fullWidth 
+								name="password" 
+								placeholder="Digite sua senha" 
+								type="password"
+							/>
+						</FormInput>
+
+						<SysFormButton 
+							variant="contained"
+							sx={{ 
+								bgcolor: theme => theme.palette.divider,
+						 	}}
+						>
+							Entrar
+						</SysFormButton>
+						
+						<FormHelper>
+							<Typography>Esqueceu sua senha?</Typography>
+							<SysLink component='button' onClick={handleForgotPassword}>Clique aqui</SysLink>
+						</FormHelper>
+
+						<FormHelper>
+							<Typography>Novo por aqui?</Typography>
+							<SysLink component='button'>Cadastre-se</SysLink>
+						</FormHelper>
+					</FormWrapper>
+				</SysForm>
 			</Content>
 		</Container>
 	);
