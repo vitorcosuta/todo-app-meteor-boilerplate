@@ -8,6 +8,7 @@ interface ISysAppBarStyles {
   navContainerDesktop: ElementType<BoxProps>;
   navContainerMobile: ElementType<BoxProps>;
   iconButton: ElementType<IconButtonProps>;
+  avatarContainer: ElementType<BoxProps>;
 }
 
 const SysAppBarStyles: ISysAppBarStyles = {
@@ -16,7 +17,7 @@ const SysAppBarStyles: ISysAppBarStyles = {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.divider,
     color: theme.palette.primary.contrastText,
   })),
   container: styled(Box)(({ theme }) => ({
@@ -52,6 +53,13 @@ const SysAppBarStyles: ISysAppBarStyles = {
     padding: 0,
     margin: 0,
     "& .MuiSvgIcon-root:hover": { color: theme.palette.sysAction?.bgDisabled }
+  })),
+  avatarContainer: styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    cursor: 'pointer',
+    gap: sysSizing.spacingRemXs,
   }))
 };
 

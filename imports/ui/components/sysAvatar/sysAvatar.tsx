@@ -2,6 +2,7 @@ import React from 'react';
 import Styles from './sysAvatarStyles';
 import {AvatarProps} from '@mui/material/Avatar';
 import Typography, { TypographyProps } from '@mui/material/Typography';
+import PersonIcon from '@mui/icons-material/Person';
 import {SxProps, Theme} from '@mui/material/styles';
 import { hasValue } from '/imports/libs/hasValue';
 
@@ -47,7 +48,7 @@ const SysAvatar: React.FC<ISysAvatar> = ({
       sx={sx}
     >
       <Styles.avatar {...otherProps} sx={sxAvatar}>
-        <Typography variant={textVariant}>{name?.[0].toUpperCase()}</Typography>
+        <PersonIcon />
       </Styles.avatar>
     </Styles.container>
   );

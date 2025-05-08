@@ -22,7 +22,7 @@ const SysAvatarStyles: ISysAvatarStyles = {
     width: size === 'small' ? sysSizing.componentsButtonSmallMinHeight : size === 'medium' ? sysSizing.spacingRemXl : sysSizing.componentsButtonMediumMinHeight,
     height: size === 'small' ? sysSizing.componentsButtonSmallMinHeight : size === 'medium' ? sysSizing.spacingRemXl : sysSizing.componentsButtonMediumMinHeight,
     borderRadius: '50%',
-    border: !activateOutline ? 'none' : `2px solid ${theme?.palette.common.white}`,
+    border: activateOutline ? 'none' : `2px solid ${theme?.palette.common.white}`,
     display: 'flex',
     overflow: 'hidden',
     alignItems: 'center',
@@ -39,7 +39,8 @@ const SysAvatarStyles: ISysAvatarStyles = {
   avatar: styled(Avatar)(({theme}) => ({
     width: '100%',
     height: '100%',
-    backgroundColor: theme?.palette.primary.dark,
+    backgroundColor: theme.palette.text.disabled,
+    color: theme.palette.text.secondary,
     flexShrink: 0,
     marigin: 0,
     '&:focus': {

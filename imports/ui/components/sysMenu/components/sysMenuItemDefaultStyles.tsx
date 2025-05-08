@@ -19,10 +19,10 @@ const SysMenuItemDefaultStyles: IStyles = {
         '& .MuiSvgIcon-root': {
             width: '24px',
             height: '24px',
-            color: theme.palette.sysAction?.primary,
+            color: theme.palette.text.secondary,
         },
         "&:hover": {
-            backgroundColor: theme.palette.sysAction?.primaryBgHover,    
+            backgroundColor: theme.palette.sysAction?.bgDisabled,    
         }
     }))
 };

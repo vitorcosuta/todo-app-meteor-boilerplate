@@ -1,12 +1,9 @@
 import React, { Fragment, ReactNode, useContext } from 'react';
 import Styles from './sysAppBarStyles';
 import Context, { ISysAppBarContext } from './sysAppBarContext';
-import sysRoutes from '/imports/app/routes/routes';
-import SysIcon from '/imports/ui/components/sysIcon/sysIcon';
-import { SysNavLink } from '/imports/ui/components/sysNavLink/sysNavLink';
 import SysMenu from '/imports/ui/components/sysMenu/sysMenuProvider';
 import SysAvatar from '/imports/ui/components/sysAvatar/sysAvatar';
-import RenderWithPermission from '/imports/security/ui/components/renderWithPermission';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 interface ISysAppBar{
   logo?: ReactNode;
@@ -19,38 +16,17 @@ const SysAppBarView: React.FC<ISysAppBar> = ({logo}) => {
     <Styles.wrapper>
       <Styles.container>
         {logo}
-        <Styles.navContainerDesktop>
-          {controller.menuOptions.map(option => (
-            <RenderWithPermission key={option?.name} resources={option?.resources}>
-              <SysNavLink
-                active={sysRoutes.checkIsActiveRoute(option?.path)}
-                sysOptions={option!}
-              />
-            </RenderWithPermission>
-          ))}
-        </Styles.navContainerDesktop>
-        <Styles.navContainerMobile>
-          <Fragment>
-            <Styles.iconButton onClick={controller.abrirMenuMobile}>
-              <SysIcon name='menu' sx={{ width: '24px', height: '24px' }}/>
-            </Styles.iconButton>
-            <SysMenu
-              ref={controller.menuMobileRef}
-              options={controller.getOpcoesMenuMobile()}
-              activeArrow
-              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            />
-
-          </Fragment>
-        </Styles.navContainerMobile>
         <Fragment>
-          <SysAvatar 
-            name={ controller.userName } 
-            activateOutline
-            onClick={controller.abrirMenuPerfil}
-            size='large'
-          />
+          <Styles.avatarContainer onClick={controller.abrirMenuPerfil}>
+            <SysAvatar 
+                name={ controller.userName } 
+                activateOutline
+                size='large'
+              />
+              <ArrowDropDownIcon fontSize='small' sx={{ color: (theme)=> theme.palette.text.secondary }} />
+          </Styles.avatarContainer>
+
+          {/* Menu flutuante que aparece ao clicar no avatar */}
           <SysMenu
               ref={controller.menuPerfilRef}
               options={controller.getOpcoesMenuDeUsuario()}
