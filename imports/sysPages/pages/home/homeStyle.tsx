@@ -6,7 +6,7 @@ import {SysSectionPaddingXY} from "/imports/ui/layoutComponents/sysLayoutCompone
 interface IHomeStyles {
 	Container: ElementType<BoxProps>;
 	Header: ElementType<BoxProps>;
-	RowButtons: ElementType<BoxProps>;
+	
 }
 
 const HomeStyles: IHomeStyles = {
@@ -26,21 +26,6 @@ const HomeStyles: IHomeStyles = {
 		gap: '1rem',
 		marginBottom: '1rem'
 	})),
-	RowButtons: styled(Box)(({ theme }) => ({
-		display: 'flex',
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'flex-start',
-		gap: '0.5rem',
-		flexWrap: 'wrap',
-		rowGap: '0.8rem',
-		[theme.breakpoints.down('lg')]: {
-			justifyContent: 'space-around'
-		},
-		[theme.breakpoints.down('sm')]: {
-			columnGap: '1rem'
-		}
-	}))
 };
 
 export default HomeStyles;

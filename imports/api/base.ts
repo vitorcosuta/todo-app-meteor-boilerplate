@@ -301,7 +301,7 @@ export class ApiBase<Doc extends IDoc> {
 	 * @param  {Object} query - Params to query a document.
 	 * @param  {Object} projection - Params to define which fields will return.
 	 */
-	find(query: Selector<Doc>, projection = {}) {
+	find(query: Selector<Doc> = {}, projection = {}) {
 		return this.getCollectionInstance().find(query, projection);
 	}
 

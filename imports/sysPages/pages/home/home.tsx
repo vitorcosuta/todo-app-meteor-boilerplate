@@ -1,27 +1,40 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Typography from '@mui/material/Typography';
-import HomeSectionNotificacoes from './sections/notificacoes';
-import HomeSectionDialogs from './sections/dialogs';
 import HomeStyles from './homeStyle';
-import HomeSectionComponents from "/imports/sysPages/pages/home/sections/componentTests";
-
+import { HomeControllerContext } from './homeController';
+import List from '@mui/material/List';
+import { TodoListItem } from '/imports/ui/components/TodoListItem/TodoListItem';
 
 const Home: React.FC = () => {
-  const { Container, Header, } = HomeStyles;
+	
+	const { Container, Header, } = HomeStyles;
+	const controller = useContext(HomeControllerContext);
+
+	console.log(controller.todoList);
+	const username = controller.user?.username;
 
 	return (
 		<Container>
-      <Header>
-				<Typography variant="h3">Página de testes</Typography>
+      		<Header>
+				<Typography variant="h1">Olá, {username} </Typography>
 				<Typography variant="body1" textAlign={'justify'}>
-					Bem vindo ao Boilerplate do Synergia. Essa é uma página dedicada aos testes e exibições de componentes e
-					funcionalidades do nosso sistema. Esperamos que você aproveite e aprenda bastante com ela. Para mais dúvidas
-					consulte nossa documentação oficial pelo storybook.
+					Seus projetos muito mais organizados. 
+					Veja as tarefas adicionadas por seu time, por você e para você!
 				</Typography>
+				<Typography variant='h3'>
+					Adicionadas recentemente
+				</Typography>
+				<List>
+					{controller.todoList.map((todo) => (
+						<TodoListItem 
+							key={todo._id}
+							currentUser={username}
+							taskCreator={todo.username}
+							taskName={todo.name}
+						/>
+					))}
+				</List>
 			</Header>
-			<HomeSectionNotificacoes />
-			<HomeSectionDialogs />
-      <HomeSectionComponents />
 		</Container>
 	);
 };
