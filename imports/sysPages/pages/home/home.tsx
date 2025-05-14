@@ -3,14 +3,19 @@ import Typography from '@mui/material/Typography';
 import HomeStyles from './homeStyle';
 import { HomeControllerContext } from './homeController';
 import List from '@mui/material/List';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { TodoListItem } from '/imports/ui/components/TodoListItem/TodoListItem';
+import { TodoActionButton } from '../../../ui/components/TodoActionButton/TodoActionButton';
+import { useNavigate } from 'react-router-dom';
 
 const Home: React.FC = () => {
-	
 	const { Container, Header, } = HomeStyles;
 	const controller = useContext(HomeControllerContext);
+	const navigate = useNavigate();
 
 	const username = controller.user?.username;
+
+	const handleClick = () => navigate('/toDos');
 
 	return (
 		<Container>
@@ -33,6 +38,12 @@ const Home: React.FC = () => {
 						/>
 					))}
 				</List>
+				<TodoActionButton 
+					endIcon={<KeyboardDoubleArrowRightIcon />}
+					onClick={handleClick}
+				>
+					Ir para tarefas
+				</TodoActionButton>
 			</Header>
 		</Container>
 	);
