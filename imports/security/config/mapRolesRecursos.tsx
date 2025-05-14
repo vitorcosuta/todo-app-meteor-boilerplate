@@ -1,9 +1,6 @@
-import { Recurso as Exemplo } from '/imports/modules/example/config/recursos';
-import { Recurso as Aniversario } from '/imports/modules/aniversario/config/recursos';
 import { Recurso as Usuarios } from '/imports/modules/userprofile/config/recurso';
 import { Recurso as Todos } from '/imports/modules/toDos/config/recursos';
 import { RoleType } from '/imports/security/config/roleType';
-import { HomeResources } from '/imports/sysPages/config/resources';
 
 const _getAllValues = (obj: any) => Object.keys(obj).map(key => obj[key]);
 
@@ -12,9 +9,6 @@ type MapRolesRecursos = Record<RoleType, Array<string>>;
 const _mapRolesRecursos: MapRolesRecursos = {
 	[RoleType.PUBLICO]: [],
 	[RoleType.USUARIO]: [
-		..._getAllValues(Exemplo),
-		..._getAllValues(HomeResources),
-		..._getAllValues(Aniversario),
 		..._getAllValues(Todos),
 		Usuarios.USUARIO_UPDATE,
 		Usuarios.USUARIO_VIEW,	
