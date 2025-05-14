@@ -10,7 +10,6 @@ const Home: React.FC = () => {
 	const { Container, Header, } = HomeStyles;
 	const controller = useContext(HomeControllerContext);
 
-	console.log(controller.todoList);
 	const username = controller.user?.username;
 
 	return (

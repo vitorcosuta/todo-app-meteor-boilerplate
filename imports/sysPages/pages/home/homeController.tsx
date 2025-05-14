@@ -25,16 +25,19 @@ const HomeController = () => {
     const { user } = useContext<IAuthContext>(AuthContext);
 
     const queryParams = {
-        userId: user?._id,
-        limit: TODO_LIMIT
+        $or: [
+            { createdby: user?._id },      // Tarefas criadas pelo usuário logado
+            { isPersonal: false }          	   // Tarefas públicas
+        ]
     }
 
-    const sort = {
-        'createdat': 1
+    const options = {
+        limit: 5,
+        sort: { 'createdat': 1 }
     };
 
     const { loading, latestTodos } = useTracker(() => {
-        const subHandle = toDosApi.subscribe('latestToDos', queryParams, sort);
+        const subHandle = toDosApi.subscribe('latestToDos', {...queryParams}, options);
 
         const latestTodos = subHandle?.ready() ? toDosApi.find().fetch() : [];
         

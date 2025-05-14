@@ -19,26 +19,11 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 		this.addTransformedPublication(
 			'latestToDos', 
 
-			async (params: { userId: string, limit: number }, sort = {}) => {
-				
-				console.log('User id: ', params.userId);
-
-				const filter = {
-					$or: [
-						{ createdby: params.userId },      // Tarefas criadas pelo usuário logado
-						{ isPersonal: false }          	   // Tarefas públicas
-					]
-				}
-
-				const doc = await this.defaultListCollectionPublication(filter, {
-					projection: { createdby: 1, name: 1, status: 1 }, // Selecionar quais campos devem ser incluídos no doc
-					limit: params.limit,
-					sort: sort
+			async (filter = {}, options = {}) => {
+				return this.defaultListCollectionPublication(filter, {
+					projection: { createdby: 1, name: 1, status: 1 },
+					...options
 				});
-
-				console.log('doc', await doc.fetch());
-
-				return doc; 
 			},
 
 			async (doc: Partial<IToDos>): Promise<Partial<IToDos> & {username: string}> => {
