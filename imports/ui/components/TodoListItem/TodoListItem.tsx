@@ -1,7 +1,6 @@
 import React from "react";
 import { ListItem, ListItemProps } from "@mui/material";
-import Avatar from "@mui/material/Avatar";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
@@ -38,13 +37,10 @@ export const TodoListItem: React.FC<ITodoListItem> = ({
                 }}
             onClick={onClick}
         >
-            <ListItemAvatar>
-                <Avatar>
-                    {taskCompleted ? <TaskAltIcon /> : <PanoramaFishEyeIcon />}
-                </Avatar>
-            </ListItemAvatar>
+            <ListItemIcon>
+                {taskCompleted ? <TaskAltIcon fontSize="large" /> : <PanoramaFishEyeIcon fontSize="large" />}
+            </ListItemIcon>
             
-
             <ListItemText
                 primary={taskName}
                 secondary={`Criada por: ${currentUser === taskCreator ? 'Você' : taskCreator}`} 

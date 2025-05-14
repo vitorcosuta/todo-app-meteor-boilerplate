@@ -24,7 +24,8 @@ const HomeStyles: IHomeStyles = {
 		alignItems: 'flex-start',
 		justifyContent: 'flex-start',
 		gap: '1rem',
-		marginBottom: '1rem'
+		marginBottom: '1rem',
+		width: '100%',
 	})),
 };
 

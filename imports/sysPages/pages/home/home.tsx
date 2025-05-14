@@ -23,7 +23,7 @@ const Home: React.FC = () => {
 				<Typography variant='h3'>
 					Adicionadas recentemente
 				</Typography>
-				<List>
+				<List sx={{ width: '100%' }}>
 					{controller.todoList.map((todo) => (
 						<TodoListItem 
 							key={todo._id}
