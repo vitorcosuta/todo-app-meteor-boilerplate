@@ -13,7 +13,7 @@ export const toDosRouterList: (IRoute | null)[] = [
 		path: '/toDos/:screenState',
 		component: ToDosContainer,
 		isProtected: true,
-		resources: [Recurso.TODOS_CREATE]
+		resources: [Recurso.TODOS_CREATE],
 	},
 	{
 		path: '/toDos',

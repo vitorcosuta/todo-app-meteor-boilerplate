@@ -1,87 +1,47 @@
-import React from 'react';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import { SysFab } from '/imports/ui/components/sysFab/sysFab';
-import { ToDosListControllerContext } from './toDosListController';
-import { useNavigate } from 'react-router-dom';
-import { ComplexTable } from '/imports/ui/components/ComplexTable/ComplexTable';
-import DeleteDialog from '/imports/ui/appComponents/showDialog/custom/deleteDialog/deleteDialog';
-import AppLayoutContext, { IAppLayoutContext } from '/imports/app/appLayoutProvider/appLayoutContext';
+import React, { useState, useContext } from 'react';
 import ToDosListStyles from './toDosListStyles';
+import { TodoCollapse } from '/imports/ui/components/TodoCollapse/TodoCollapse';
+import { CustomTabPanel } from '/imports/ui/components/sysTabs/CustomTabPanel/CustomTabPanel';
+import { TabHeader } from '/imports/ui/components/sysTabs/TabHeader/TabHeader';
 import SysTextField from '/imports/ui/components/sysFormFields/sysTextField/sysTextField';
-import { SysSelectField } from '/imports/ui/components/sysFormFields/sysSelectField/sysSelectField';
-import SysIcon from '/imports/ui/components/sysIcon/sysIcon';
-
+import SearchIcon from '@mui/icons-material/Search';
+import { ToDosListControllerContext } from './toDosListController';
+import { TodoList } from '/imports/ui/components/TodoList/TodoList';
 
 const ToDosListView = () => {
-	const controller = React.useContext(ToDosListControllerContext);
-	const sysLayoutContext = React.useContext(AppLayoutContext);
-	const navigate = useNavigate();
-  const {
-    Container,
-    LoadingContainer,
-    SearchContainer
-  } = ToDosListStyles;
+	
+	const [tabValue, setTabValue] = useState(0);
 
-	const options = [{ value: '', label: 'Nenhum' }, ...(controller.schema.type.options?.() ?? [])];
+	const {
+		Container,
+		TabSection
+	} =  ToDosListStyles
+
+	const controller = useContext(ToDosListControllerContext);
+	const todos = controller.todoList;
+	const username = controller.user?.username;
+	const currentTab = controller.tabValue;
 
 	return (
 		<Container>
-			<Typography variant="h5">Lista de Itens</Typography>
-			<SearchContainer>
-				<SysTextField
-					name="search"
-					placeholder="Pesquisar por nome"
-					onChange={controller.onChangeTextField}
-					startAdornment={<SysIcon name={'search'} />}
-				/>
-				<SysSelectField
-					name="Category"
-					label="Categoria"
-					options={options}
-					placeholder="Selecionar"
-					onChange={controller.onChangeCategory}
-				/>
-			</SearchContainer>
-			{controller.loading ? (
-				<LoadingContainer>
-					<CircularProgress />
-					<Typography variant="body1">Aguarde, carregando informações...</Typography>
-				</LoadingContainer>
-			) : (
-				<Box sx={{ width: '100%' }}>
-					<ComplexTable
-						data={controller.todoList}
-						schema={controller.schema}
-						onRowClick={(row) => navigate('/toDos/view/' + row.id)}
-						searchPlaceholder={'Pesquisar exemplo'}
-						onEdit={(row) => navigate('/toDos/edit/' + row._id)}
-						onDelete={(row) => {
-							DeleteDialog({
-								showDialog: sysLayoutContext.showDialog,
-								closeDialog: sysLayoutContext.closeDialog,
-								title: `Excluir dado ${row.title}`,
-								message: `Tem certeza que deseja excluir o arquivo ${row.title}?`,
-								onDeleteConfirm: () => {
-									controller.onDeleteButtonClick(row);
-									sysLayoutContext.showNotification({
-										message: 'Excluído com sucesso!'
-									});
-								}
-							});
-						}}
-					/>
-				</Box>
-			)}
+			<TabHeader value={currentTab} onChange={controller.onTabChange} />
 
-			<SysFab
-				variant="extended"
-				text="Adicionar"
-				startIcon={<SysIcon name={'add'} />}
-				fixed={true}
-				onClick={controller.onAddButtonClick}
-			/>
+			<TabSection>
+				<CustomTabPanel value={currentTab} index={0}>
+					<SysTextField
+						name='search-term'
+						startAdornment={<SearchIcon />}
+						placeholder='Procurar tarefa'
+						onChange={controller.onSearchBarChange}
+					/>
+					<TodoCollapse>
+						<TodoList todos={todos} currentUserName={username} />
+					</TodoCollapse>
+				</CustomTabPanel>
+				<CustomTabPanel value={currentTab} index={1}>
+					Não há nada para ver aqui.
+				</CustomTabPanel>
+			</TabSection>
 		</Container>
 	);
 };

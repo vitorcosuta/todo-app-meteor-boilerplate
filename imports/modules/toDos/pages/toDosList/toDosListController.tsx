@@ -1,110 +1,106 @@
-import React, { useCallback, useMemo } from 'react';
-import ToDosListView from './toDosListView';
-import { nanoid } from 'nanoid';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useContext, useMemo, useState, useEffect } from "react";
 import { useTracker } from 'meteor/react-meteor-data';
-import { ISchema } from '/imports/typings/ISchema';
-import { IToDos } from '../../api/toDosSch';
-import { toDosApi } from '../../api/toDosApi';
+import { IToDos } from "/imports/modules/toDos/api/toDosSch";
+import { toDosApi } from "/imports/modules/toDos/api/toDosApi";
+import AuthContext, { IAuthContext } from "/imports/app/authProvider/authContext";
+import ToDosListView from "./toDosListView";
+import { IUserProfile } from "/imports/modules/userprofile/api/userProfileSch";
+
+const TODO_LIMIT = 4;
 
 interface IInitialConfig {
-	sortProperties: { field: string; sortAscending: boolean };
 	filter: Object;
-	searchBy: string | null;
-	viewComplexTable: boolean;
+	options: Object;
+	tabValue: number;
 }
 
+// Interface que define o padrão do contexto a ser passado para o view
 interface IToDosListContollerContext {
-	onAddButtonClick: () => void;
-	onDeleteButtonClick: (row: any) => void;
-	todoList: IToDos[];
-	schema: ISchema<any>;
+	tabValue: number;
+	todoList: (Partial<IToDos> & { username: string })[];
+	user: IUserProfile | undefined;
 	loading: boolean;
-	onChangeTextField: (event: React.ChangeEvent<HTMLInputElement>) => void;
-	onChangeCategory: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	onSearchBarChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	onTabChange: (event: React.SyntheticEvent, newValue: number) => void;
 }
 
+// Criamos um contexto vazio inicialmente
 export const ToDosListControllerContext = React.createContext<IToDosListContollerContext>(
 	{} as IToDosListContollerContext
 );
 
-const initialConfig = {
-	sortProperties: { field: 'createdat', sortAscending: true },
+const InitialConfig = {
+	options: { limit: TODO_LIMIT, sort: { 'createdat': 1 } },
 	filter: {},
-	searchBy: null,
-	viewComplexTable: false
-};
+	tabValue: 0,
+}
 
 const ToDosListController = () => {
-	const [config, setConfig] = React.useState<IInitialConfig>(initialConfig);
+	
+	const { user } = useContext<IAuthContext>(AuthContext);
+	
+	const [config, setConfig] = useState<IInitialConfig>(InitialConfig);
 
-	const { title, type, typeMulti } = toDosApi.getSchema();
-	const toDosSchReduzido = { title, type, typeMulti, createdat: { type: Date, label: 'Criado em' } };
-	const navigate = useNavigate();
+	const { filter, options, tabValue } = config;
 
-	const { sortProperties, filter } = config;
-	const sort = {
-		[sortProperties.field]: sortProperties.sortAscending ? 1 : -1
-	};
+	// Alterando o filtro inicial
+	useEffect(() => {
+		if (!user?._id) return;
+	
+		setConfig((prev) => ({
+			...prev,
+			filter: {
+				...prev.filter,
+				$or: [
+					{ createdby: user._id },
+					{ isPersonal: false }
+				]
+			}
+		}));
+	}, [user?._id]);
 
-	const { loading, toDoss } = useTracker(() => {
-		const subHandle = toDosApi.subscribe('toDosList', filter, {
-			sort
-		});
-		const toDoss = subHandle?.ready() ? toDosApi.find(filter, { sort }).fetch() : [];
+	const { loading, latestTodos } = useTracker(() => {
+		const subHandle = toDosApi.subscribe('latestToDos', filter, options);
+
+		const latestTodos = subHandle?.ready() ? toDosApi.find().fetch() : [];
+		
 		return {
-			toDoss,
+			latestTodos,
 			loading: !!subHandle && !subHandle.ready(),
-			total: subHandle ? subHandle.total : toDoss.length
+			total: subHandle ? subHandle.total : latestTodos.length
 		};
 	}, [config]);
 
-	const onAddButtonClick = useCallback(() => {
-		const newDocumentId = nanoid();
-		navigate(`/toDos/create/${newDocumentId}`);
-	}, []);
-
-	const onDeleteButtonClick = useCallback((row: any) => {
-		toDosApi.remove(row);
-	}, []);
-
-	const onChangeTextField = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+	const onSearchBarChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.target;
+
 		const delayedSearch = setTimeout(() => {
 			setConfig((prev) => ({
 				...prev,
-				filter: { ...prev.filter, title: { $regex: value.trim(), $options: 'i' } }
+				filter: { ...prev.filter, name: { $regex: value.trim(), $options: 'i' } }
 			}));
 		}, 1000);
+
 		return () => clearTimeout(delayedSearch);
 	}, []);
 
-	const onSelectedCategory = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-		const { value } = event.target;
-		if (!value) {
+	const onTabChange = useCallback(
+		(event: React.SyntheticEvent, newValue: number) => {
 			setConfig((prev) => ({
 				...prev,
-				filter: {
-					...prev.filter,
-					type: { $ne: null }
-				}
-			}));
-			return;
-		}
-		setConfig((prev) => ({ ...prev, filter: { ...prev.filter, type: value } }));
-	}, []);
+				tabValue: newValue
+			}))
+		}, []);
 
 	const providerValues: IToDosListContollerContext = useMemo(
 		() => ({
-			onAddButtonClick,
-			onDeleteButtonClick,
-			todoList: toDoss,
-			schema: toDosSchReduzido,
-			loading,
-			onChangeTextField,
-			onChangeCategory: onSelectedCategory
-		}),
-		[toDoss, loading]
+			tabValue,
+            todoList: latestTodos,
+            user,
+            loading,
+			onSearchBarChange,
+			onTabChange
+        }), [latestTodos, loading]
 	);
 
 	return (

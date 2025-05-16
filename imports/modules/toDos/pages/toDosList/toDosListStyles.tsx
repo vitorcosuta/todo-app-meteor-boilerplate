@@ -6,12 +6,22 @@ import {SysSectionPaddingXY} from "/imports/ui/layoutComponents/sysLayoutCompone
 
 interface IToDosListStyles {
 	Container: ElementType<BoxProps>;
-	LoadingContainer: ElementType<BoxProps>;
-	SearchContainer: ElementType<BoxProps>;
+	TabSection: ElementType<BoxProps>;
 }
 
 const ToDosListStyles: IToDosListStyles = {
-	Container: styled(SysSectionPaddingXY)(() => ({
+	Container: styled(Box)(() => ({
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'flex-start',
+		alignItems: 'flex-start',
+		width: '100vw',
+		height: '100vh',
+		overflow: 'auto',
+		gap: sysSizing.spacingFixedMd,
+    	marginBottom: sysSizing.contentFabDistance
+	})),
+	TabSection: styled(SysSectionPaddingXY)(() => ({
 		display: 'flex',
 		flexDirection: 'column',
 		justifyContent: 'flex-start',
@@ -20,28 +30,7 @@ const ToDosListStyles: IToDosListStyles = {
 		height: '100vh',
 		overflow: 'auto',
 		gap: sysSizing.spacingFixedMd,
-    marginBottom: sysSizing.contentFabDistance
-	})),
-	LoadingContainer: styled(Box)(({ theme }) => ({
-		width: '100%',
-		display: 'flex',
-		flexGrow: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		flexDirection: 'column',
-		gap: theme.spacing(2)
-	})),
-	SearchContainer: styled(Box)(({ theme }) => ({
-		width: '100%',
-		display: 'flex',
-		flexDirection: 'row',
-		justifyContent: 'flex-start',
-		alignItems: 'flex-end',
-		maxWidth: '616px',
-		gap: sysSizing.spacingFixedMd,
-		[theme.breakpoints.down('sm')]: {
-			flexDirection: 'column'
-		}
+    	marginBottom: sysSizing.contentFabDistance
 	}))
 };
 

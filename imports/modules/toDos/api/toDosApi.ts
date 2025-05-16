@@ -10,9 +10,6 @@ class ToDosApi extends ProductBase<IToDos> {
 			enableSubscribeObserver: true
 		});
 	}
-
-	recentToDos = (callback: (error: IMeteorError, result: Array<string>) => void) => 
-		this.callMethod('recentToDos', callback);
 }
 
 export const toDosApi = new ToDosApi();
