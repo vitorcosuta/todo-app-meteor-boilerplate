@@ -3,17 +3,29 @@ import Button from '@mui/material/Button';
 import { sysSizing } from '/imports/ui/materialui/styles';
 
 const StyledSysFormButton = styled(Button)(({ theme }) => ({
-    border: 'none',
     backgroundColor: theme.palette.divider,
+    border: 'none',
     color: theme.palette.common.black,
-    maxWidth: '278px',
-    maxHeight: '50px',
-    width: '100%',
     margin: sysSizing.base.baseFixed050,
+    maxHeight: '50px',
+    maxWidth: '278px',
+    width: '100%',
     '&:hover': {
         border: 'none',
         backgroundColor: theme.palette.text.secondary,
         color: theme.palette.common.white,
+    },
+    '&:active': {
+        backgroundColor: theme.palette.divider,
+        border: 'none',
+    },
+    '&:focus': {
+        backgroundColor: theme.palette.divider,
+        border: 'none',
+    },
+    '&.Mui-focusVisible': {
+        backgroundColor: theme.palette.divider,
+        border: 'none',
     },
 }));
 
