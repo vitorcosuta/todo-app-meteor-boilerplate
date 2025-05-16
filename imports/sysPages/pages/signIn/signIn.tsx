@@ -31,11 +31,6 @@ const SignInPage: React.FC = () => {
 	const handleSubmit = ({ email, password }: { email: string; password: string }) => {
 		signIn(email, password, (err) => {
 			if (!err) navigate('/');
-			showNotification({
-				type: 'error',
-				title: 'Erro ao tentar logar',
-				message: 'Email ou senha inválidos',
-			});
 		});
 ;	};
 

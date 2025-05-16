@@ -1,6 +1,7 @@
 import { Recurso as Usuarios } from '/imports/modules/userprofile/config/recurso';
 import { Recurso as Todos } from '/imports/modules/toDos/config/recursos';
 import { RoleType } from '/imports/security/config/roleType';
+import { HomeResources } from '/imports/sysPages/config/recursos';
 
 const _getAllValues = (obj: any) => Object.keys(obj).map(key => obj[key]);
 
@@ -10,6 +11,7 @@ const _mapRolesRecursos: MapRolesRecursos = {
 	[RoleType.PUBLICO]: [],
 	[RoleType.USUARIO]: [
 		..._getAllValues(Todos),
+		..._getAllValues(HomeResources),
 		Usuarios.USUARIO_UPDATE,
 		Usuarios.USUARIO_VIEW,	
 	],
