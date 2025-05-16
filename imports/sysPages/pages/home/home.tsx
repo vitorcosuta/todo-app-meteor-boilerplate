@@ -2,11 +2,10 @@ import React, { useContext } from 'react';
 import Typography from '@mui/material/Typography';
 import HomeStyles from './homeStyle';
 import { HomeControllerContext } from './homeController';
-import List from '@mui/material/List';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import { TodoListItem } from '/imports/ui/components/TodoListItem/TodoListItem';
 import { TodoActionButton } from '../../../ui/components/TodoActionButton/TodoActionButton';
 import { useNavigate } from 'react-router-dom';
+import { TodoList } from '/imports/ui/components/TodoList/TodoList';
 
 const Home: React.FC = () => {
 	const { Container, Header, } = HomeStyles;
@@ -28,16 +27,9 @@ const Home: React.FC = () => {
 				<Typography variant='h3'>
 					Adicionadas recentemente
 				</Typography>
-				<List sx={{ width: '100%' }}>
-					{controller.todoList.map((todo) => (
-						<TodoListItem 
-							key={todo._id}
-							currentUser={username}
-							taskCreator={todo.username}
-							taskName={todo.name}
-						/>
-					))}
-				</List>
+
+				<TodoList todos={controller.todoList} currentUserName={username} />
+
 				<TodoActionButton 
 					endIcon={<KeyboardDoubleArrowRightIcon />}
 					onClick={handleClick}
