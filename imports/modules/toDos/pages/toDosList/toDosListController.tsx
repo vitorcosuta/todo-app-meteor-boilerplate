@@ -16,9 +16,11 @@ interface IInitialConfig {
 
 // Interface que define o padrão do contexto a ser passado para o view
 interface IToDosListContollerContext {
-	tabValue: number;
-	todoList: (Partial<IToDos> & { username: string })[];
+	pendingTodosList: (Partial<IToDos> & { username: string })[];
+	completedTodosList: (Partial<IToDos> & { username: string })[];
+	todosCount: number;
 	user: IUserProfile | undefined;
+	tabValue: number;
 	loading: boolean;
 	onSearchBarChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	onTabChange: (event: React.SyntheticEvent, newValue: number) => void;
@@ -59,15 +61,17 @@ const ToDosListController = () => {
 		}));
 	}, [user?._id]);
 
-	const { loading, latestTodos } = useTracker(() => {
-		const subHandle = toDosApi.subscribe('latestToDos', filter, options);
+	const { loading, pendingTodosList, completedTodosList, todosCount } = useTracker(() => {
+		const subHandle = toDosApi.subscribe('ToDos', filter, options);
 
-		const latestTodos = subHandle?.ready() ? toDosApi.find().fetch() : [];
+		const pendingTodosList = subHandle?.ready() ? toDosApi.find({ status: { $ne: 'Concluída' } }).fetch() : [];
+		const completedTodosList = subHandle?.ready() ? toDosApi.find({ status: 'Concluída' }).fetch() : [];
 		
 		return {
-			latestTodos,
+			pendingTodosList,
+			completedTodosList,
 			loading: !!subHandle && !subHandle.ready(),
-			total: subHandle ? subHandle.total : latestTodos.length
+			todosCount: subHandle ? subHandle.total : pendingTodosList.length
 		};
 	}, [config]);
 
@@ -94,13 +98,15 @@ const ToDosListController = () => {
 
 	const providerValues: IToDosListContollerContext = useMemo(
 		() => ({
+            pendingTodosList,
+			completedTodosList,
+			todosCount,
 			tabValue,
-            todoList: latestTodos,
             user,
             loading,
 			onSearchBarChange,
 			onTabChange
-        }), [latestTodos, loading]
+        }), [pendingTodosList, completedTodosList, loading]
 	);
 
 	return (

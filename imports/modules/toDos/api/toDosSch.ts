@@ -49,6 +49,6 @@ export interface IToDos extends IDoc {
 	description?: string;
 	dueDate?: Date;
 	userId?: string;
-	status: string[];
+	status: string;
 	isPersonal: boolean;
 }

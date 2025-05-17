@@ -6,13 +6,9 @@ import SysForm from '../../../ui/components/sysForm/sysForm';
 import SysFormButton from '../../../ui/components/sysFormFields/sysFormButton/sysFormButton';
 import SysLink from '/imports/ui/components/sysLink/sysLink';
 import { signInSchema } from './signinsch';
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Link from '@mui/material/Link';
-import SysIcon from '../../../ui/components/sysIcon/sysIcon';
 import AuthContext, { IAuthContext } from '/imports/app/authProvider/authContext';
 import AppLayoutContext from '/imports/app/appLayoutProvider/appLayoutContext';
-import { sysSizing } from '/imports/ui/materialui/styles';
 
 const SignInPage: React.FC = () => {
 	const { showNotification } = useContext(AppLayoutContext);

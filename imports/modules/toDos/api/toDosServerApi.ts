@@ -17,7 +17,7 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 		const self = this;
 
 		this.addTransformedPublication(
-			'latestToDos', 
+			'ToDos', 
 
 			async (filter = {}, options = {}) => {
 				return this.defaultListCollectionPublication(filter, {

@@ -1,37 +1,46 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Typography,
-  IconButton,
-  Collapse,
-} from '@mui/material';
+import { IToDos } from "/imports/modules/toDos/api/toDosSch";
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import { TodoList } from '../TodoList/TodoList';
+import TodoCollapseStyles from './TodoCollapseStyles';
 
 interface TodoCollapseProps {
-    children: React.ReactNode;
+    currentUserName: string | undefined;
+    todos: (Partial<IToDos> & { username: string })[];
+    variant: 'completed' | 'pending';
 }
 
 export const TodoCollapse = (props: TodoCollapseProps) => {
-    const [open, setOpen] = useState(false);
+    
+    const [open, setOpen] = useState(true);
+    
+    const { currentUserName, variant } = props;
+    let { todos } = props;
+
+    const {
+        Wrapper,
+        DropdownBox
+    } = TodoCollapseStyles;
+
+    const title = variant === 'completed' ? 
+                        `Concluídas (${todos.length})`:
+                        `Não concluídas (${todos.length})`;
 
     return (
-        <Box>
-            <Box
-                display="flex"
-                alignItems="center"
-                justifyContent='flex-start'
-                onClick={() => setOpen(!open)}
-                sx={{ cursor: 'pointer', padding: 1 }}
-            >
+        <Wrapper>
+            <DropdownBox onClick={() => setOpen(!open)}>
                 <IconButton size="small">
                 {open ? <ExpandLess /> : <ExpandMore />}
                 </IconButton>
-                <Typography fontWeight="bold">Tarefas</Typography>
-            </Box>
+                <Typography fontWeight="bold">{ title }</Typography>
+            </DropdownBox>
 
             <Collapse in={open} timeout="auto" unmountOnExit>
-                { props.children }
+                <TodoList currentUserName={currentUserName} todos={todos} />
             </Collapse>
-        </Box>
+        </Wrapper>
     );
 }
