@@ -31,6 +31,21 @@ const TodoActionButtonStyles: ITodoActionButtonStyles = {
             backgroundColor: theme.palette.text.secondary,
             color: theme.palette.common.white,
         },
+        '&:active': {
+            border: 'none',
+            backgroundColor: theme.palette.text.secondary,
+            color: theme.palette.common.white,
+        },
+        '&:focus': {
+            border: 'none',
+            backgroundColor: theme.palette.text.secondary,
+            color: theme.palette.common.white,
+        },
+        '&.Mui-focusVisible': {
+            border: 'none',
+            backgroundColor: theme.palette.text.secondary,
+            color: theme.palette.common.white,
+        },
     })),
 };
 
