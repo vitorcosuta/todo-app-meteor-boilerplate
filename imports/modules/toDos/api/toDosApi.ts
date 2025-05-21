@@ -10,6 +10,9 @@ class ToDosApi extends ProductBase<IToDos> {
 			enableSubscribeObserver: true
 		});
 	}
+
+	addTodo = (params: object, callback: (error: IMeteorError, result: void) => void) => 
+		this.callMethod('addTodo', params, callback);
 }
 
 export const toDosApi = new ToDosApi();

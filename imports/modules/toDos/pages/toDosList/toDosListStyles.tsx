@@ -7,6 +7,7 @@ import {SysSectionPaddingXY} from "/imports/ui/layoutComponents/sysLayoutCompone
 interface IToDosListStyles {
 	TabSection: ElementType<BoxProps>;
 	SearchInput: ElementType<BoxProps>;
+	ModalHeader: ElementType<BoxProps>;
 }
 
 const ToDosListStyles: IToDosListStyles = {
@@ -25,6 +26,11 @@ const ToDosListStyles: IToDosListStyles = {
 		width: '100%', 
 		display: 'flex', 
 		maxWidth: '528px',
+	})),
+	ModalHeader: styled(Box)(() => ({
+		display: 'flex',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
 	}))
 };
 

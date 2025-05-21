@@ -15,6 +15,8 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 		});
 
 		const self = this;
+		
+		/** INÍCIO -- REGISTRO DE PUBLICAÇÕES */
 
 		this.addTransformedPublication(
 			'ToDos', 
@@ -34,9 +36,33 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 					fields: { username: 1 }
 				});
 
-				return { ...doc, username: user.username };
+				return { ...doc, username: user?.username };
 			}
 		);
+
+		/** FIM -- REGISTRO DE PUBLICAÇÕES */
+
+
+		/** INÍCIO -- REGISTRO DE MÉTODOS */
+
+		this.registerMethod('addTodo', this.addTodo.bind(this));
+
+		/** FIM -- REGISTRO DE MÉTODOS */
+	}
+
+	public async addTodo(
+		params: {
+			name: string;
+			userId: string;
+			status: string;
+			isPersonal: false,
+		}, 
+		context: IContext
+	): Promise<void>{
+
+		const todo: IToDos = { ...params, status: 'Cadastrada' };
+		
+		this.serverInsert(todo, context);
 	}
 }
 

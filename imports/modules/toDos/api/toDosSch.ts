@@ -5,7 +5,7 @@ export const toDosSch: ISchema<IToDos> = {
 	name: {
 		type: String,
 		label: 'Name',
-		defaultValue: 'Unnamed Task',
+		defaultValue: '',
 		optional: false,
 	},
 	description: {
@@ -14,11 +14,6 @@ export const toDosSch: ISchema<IToDos> = {
 		defaultValue: '',
 		optional: true,
 	},
-	dueDate: {
-		type: Date,
-		label: 'Due Date',
-		optional: false,
-	},
 	userId: {
 		type: String,
 		label: 'User ID',
@@ -26,7 +21,7 @@ export const toDosSch: ISchema<IToDos> = {
 		optional: false,
 	},
 	status: {
-		type: [String],
+		type: String,
 		label: 'Status',
 		defaultValue: 'Cadastrada',
 		optional: false,
@@ -47,7 +42,6 @@ export const toDosSch: ISchema<IToDos> = {
 export interface IToDos extends IDoc {
 	name?: string;
 	description?: string;
-	dueDate?: Date;
 	userId?: string;
 	status: string;
 	isPersonal: boolean;
