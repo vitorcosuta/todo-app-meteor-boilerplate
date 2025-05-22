@@ -10,28 +10,59 @@ import AppLayoutContext from "/imports/app/appLayoutProvider/appLayoutContext";
 
 const TODO_LIMIT = 4;
 
+// Interface que define os estados iniciais de diversas variáveis do controlador
 interface IInitialConfig {
+
+	// Configurações da publicação
 	filter: Object;
 	options: Object;
-	tabValue: number;
+
+	// Variáveis de controle de componentes
+	currentTabIndex: number;
+	detailedTodoIndex: number;
 	isAddTodoModalOpen: boolean;
+	isDetailDrawerOpen: boolean;
+	isCompletedCollapseOpen: boolean;
+	isPendingCollapseOpen: boolean;
 }
 
 // Interface que define o padrão do contexto a ser passado para o view
 interface IToDosListContollerContext {
-	pendingTodosList: (Partial<IToDos> & { username: string })[];
+	
+	// Coleções de dados e metadados
 	completedTodosList: (Partial<IToDos> & { username: string })[];
+	pendingTodosList: (Partial<IToDos> & { username: string })[];
 	todosCount: number;
 	user: IUserProfile | undefined;
-	tabValue: number;
+
+	// Variáveis de controle de componentes
+	currentTabIndex: number;
+	detailedTodoIndex: number;
 	isAddTodoModalOpen: boolean;
+	isDetailDrawerOpen: boolean;
+	isCompletedCollapseOpen: boolean;
+	isPendingCollapseOpen: boolean;
 	loading: boolean;
-	onSearchBarChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-	onTabChange: (event: React.SyntheticEvent, newValue: number) => void;
+
+	/** FUNÇÕES DE EVENTOS */
+
+	// onClick
 	onAddTodoClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	onCloseModalClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-	onCloseModalHandler: (event: React.SyntheticEvent | {}, reason: "backdropClick" | "escapeKeyDown") => void;
+	onDetailTodoClick: (index: number) => void;
+	onPendingCollapseClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+	onCompletedCollapseClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+
+	// onChange
+	onSearchBarChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	onTabChange: (event: React.SyntheticEvent, newValue: number) => void;
+
+	// onSubmit
 	onAddTodoSubmit: ({ name, description, isPersonal }: { name: string; description: string; isPersonal: boolean }) => void;
+	
+	// onClose
+	onModalClose: (event: React.SyntheticEvent | {}, reason: "backdropClick" | "escapeKeyDown") => void;
+	
 }
 
 // Criamos um contexto vazio inicialmente
@@ -42,8 +73,12 @@ export const ToDosListControllerContext = React.createContext<IToDosListContolle
 const InitialConfig = {
 	options: { limit: TODO_LIMIT, sort: { 'createdat': -1 } },
 	filter: {},
-	tabValue: 0,
+	currentTabIndex: 0,
+	detailedTodoIndex: 0,
 	isAddTodoModalOpen: false,
+	isDetailDrawerOpen: false,
+	isCompletedCollapseOpen: true,
+	isPendingCollapseOpen: true,
 }
 
 const ToDosListController = () => {
@@ -53,7 +88,16 @@ const ToDosListController = () => {
 	
 	const [config, setConfig] = useState<IInitialConfig>(InitialConfig);
 
-	const { filter, options, tabValue, isAddTodoModalOpen } = config;
+	const { 
+		filter, 
+		options, 
+		currentTabIndex, 
+		detailedTodoIndex, 
+		isAddTodoModalOpen,
+		isDetailDrawerOpen,
+		isCompletedCollapseOpen,
+		isPendingCollapseOpen,
+	} = config;
 
 	// Alterando o filtro inicial
 	useEffect(() => {
@@ -101,7 +145,7 @@ const ToDosListController = () => {
 	const onTabChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
 		setConfig((prev) => ({
 			...prev,
-			tabValue: newValue
+			currentTabIndex: newValue
 		}))
 	}, []);
 	
@@ -119,7 +163,7 @@ const ToDosListController = () => {
 		}))
 	}, []);
 
-	const onCloseModalHandler = useCallback<NonNullable<ModalProps["onClose"]>>(
+	const onModalClose = useCallback<NonNullable<ModalProps["onClose"]>>(
 		(event: React.SyntheticEvent | {}, reason: "backdropClick" | "escapeKeyDown") => {
 			if (reason === "backdropClick") {
 				return;
@@ -155,20 +199,49 @@ const ToDosListController = () => {
 		});
 	}, []);
 
+	const onDetailTodoClick = useCallback((index: number) => {
+		setConfig((prev) => ({
+			...prev,
+			isDetailDrawerOpen: true,
+			detailedTodo: index,
+		}))
+	}, []);
+
+	const onPendingCollapseClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+		setConfig((prev) => ({
+			...prev,
+			isPendingCollapseOpen: !prev.isPendingCollapseOpen,
+		}))
+	}, []);
+
+	const onCompletedCollapseClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+		setConfig((prev) => ({
+			...prev,
+			isCompletedCollapseOpen: !prev.isCompletedCollapseOpen,
+		}))
+	}, []);
+
 	const providerValues: IToDosListContollerContext = useMemo(
 		() => ({
             pendingTodosList,
 			completedTodosList,
+			user,
 			todosCount,
-			tabValue,
+			currentTabIndex,
+			detailedTodoIndex,
 			isAddTodoModalOpen,
-            user,
+			isDetailDrawerOpen,
+			isCompletedCollapseOpen,
+			isPendingCollapseOpen,
             loading,
 			onSearchBarChange,
 			onTabChange,
 			onAddTodoClick,
 			onCloseModalClick,
-			onCloseModalHandler,
+			onDetailTodoClick,
+			onPendingCollapseClick,
+			onCompletedCollapseClick,
+			onModalClose,
 			onAddTodoSubmit,
         }), [pendingTodosList, completedTodosList, loading]
 	);

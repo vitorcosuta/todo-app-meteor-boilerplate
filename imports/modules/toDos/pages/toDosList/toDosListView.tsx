@@ -13,6 +13,10 @@ import { TodoActionButton } from '/imports/ui/components/TodoActionButton/TodoAc
 import AddIcon from '@mui/icons-material/Add';
 import { SysModal } from '/imports/ui/components/sysModal/SysModal';
 import { TodoForm } from '/imports/ui/components/TodoForm/TodoForm';
+import { TodoListItem } from '/imports/ui/components/TodoListItem/TodoListItem';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List'
+import { TodoList } from '/imports/ui/components/TodoList/TodoList';
 
 
 const ToDosListView = () => {
@@ -27,12 +31,17 @@ const ToDosListView = () => {
 	const pendingTodos = controller.pendingTodosList;
 	const completedTodos = controller.completedTodosList;
 	const username = controller.user?.username;
-	const currentTab = controller.tabValue;
+	const currentTab = controller.currentTabIndex;
 	const isModalOpen = controller.isAddTodoModalOpen;
+	const isDrawerOpen = controller.isDetailDrawerOpen;
+	const isPendingCollapseOpen = controller.isPendingCollapseOpen;
+	const isCompletedCollapseOpen = controller.isCompletedCollapseOpen;
 	const handleOpen = controller.onAddTodoClick;
-	const handleClose = controller.onCloseModalHandler;
+	const handleClose = controller.onModalClose;
 	const handleCloseClick = controller.onCloseModalClick;
 	const handleAddSubmit = controller.onAddTodoSubmit;
+	const handlePendingCollapseClick = controller.onPendingCollapseClick;
+	const handleCompletedCollapseClick = controller.onCompletedCollapseClick;
 
 	return (
 		<Fragment>
@@ -50,15 +59,26 @@ const ToDosListView = () => {
 					</SearchInput>
 					
 					<TodoCollapse
-						currentUserName={username}
-						todos={pendingTodos}
-						variant='pending'
-					/>
-					<TodoCollapse 
-						currentUserName={username}
-						todos={completedTodos}
-						variant='completed'
-					/>
+						title='Não Concluídas'
+						open={isPendingCollapseOpen}
+						in={isPendingCollapseOpen} 
+						timeout="auto" 
+						unmountOnExit
+						onClick={handlePendingCollapseClick}
+					>
+						<TodoList todos={pendingTodos} currentUserName={username} />
+					</TodoCollapse>
+					
+					<TodoCollapse
+						title='Concluídas'
+						open={isCompletedCollapseOpen}
+						in={isCompletedCollapseOpen} 
+						timeout="auto" 
+						unmountOnExit
+						onClick={handleCompletedCollapseClick}
+					>
+						<TodoList todos={completedTodos} currentUserName={username} />
+					</TodoCollapse>
 
 					<TodoActionButton
 						startIcon={<AddIcon />}
@@ -70,6 +90,10 @@ const ToDosListView = () => {
 				<CustomTabPanel value={currentTab} index={1}>
 					Não há nada para ver aqui.
 				</CustomTabPanel>
+
+				<Drawer open={isDrawerOpen}>
+
+				</Drawer>
 			</TabSection>
 
 			<SysModal open={isModalOpen} onClose={handleClose}>
