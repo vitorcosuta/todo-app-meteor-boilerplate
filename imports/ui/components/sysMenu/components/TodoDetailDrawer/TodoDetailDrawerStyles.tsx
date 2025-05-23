@@ -46,7 +46,7 @@ const TodoDetailDrawerStyles: ITodoDetailDrawerStyles = {
         fontSize: '18px',
         letterSpacing: '0.15%',
         lineHeight: '100%',
-    }))
+    })),
     EditButton: styled(Button)(({ theme }) => ({
         width: '278px',
         height: '50px',
