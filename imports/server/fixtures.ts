@@ -5,7 +5,7 @@ import { toDosServerApi } from '../modules/toDos/api/toDosServerApi';
 
 const SEED_EMAIL = 'admin@mrb.com';
 const SEED_PASSWORD = 'admin@mrb.com';
-const INITIAL_TODO_STATUS = 'Cadastrada';
+const INITIAL_TODO_STATUS = 'Pendente';
 
 const insertToDo = (todoName: string, user: Meteor.User | null | undefined) => {
 

@@ -23,11 +23,10 @@ export const toDosSch: ISchema<IToDos> = {
 	status: {
 		type: String,
 		label: 'Status',
-		defaultValue: 'Cadastrada',
-		optional: false,
+		defaultValue: 'Pendente',
+		optional: true,
 		options: () => [
-			{ value: 'Cadastrada', label: 'Registered' },
-			{ value: 'Em andamento', label: 'In Progress' },
+			{ value: 'Pendente', label: 'Pending' },
 			{ value: 'Concluída', label: 'Completed' }
 		]
 	},

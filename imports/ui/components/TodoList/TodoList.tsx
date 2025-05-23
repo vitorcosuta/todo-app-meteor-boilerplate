@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import TodoListStyles from "./TodoListStyles";
 
 interface TodoListProps {
-    currentUserName: string | undefined;
+    currentUser: string | undefined;
     todos: (Partial<IToDos> & { username: string })[];
     onDetailClick: (id: string | undefined) => void;
 }
@@ -18,7 +18,7 @@ export const TodoList = (props: TodoListProps) => {
 
     const { TodoListItem } = TodoListStyles;
 
-    const { currentUserName, todos, onDetailClick } = props;
+    const { currentUser, todos, onDetailClick } = props;
 
     if (todos.length == 0) {
         return (
@@ -42,7 +42,7 @@ export const TodoList = (props: TodoListProps) => {
                     
                     <ListItemText
                         primary={todo.name}
-                        secondary={`Criada por: ${currentUserName === todo.username ? 'Você' : todo.username}`} 
+                        secondary={`Criada por: ${currentUser === todo.userId ? 'Você' : todo.username}`} 
                     />
                 </TodoListItem>
             ))}

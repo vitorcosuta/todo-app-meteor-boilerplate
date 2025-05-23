@@ -28,18 +28,21 @@ const ToDosListView = () => {
 	const controller = useContext(ToDosListControllerContext);
 	const pendingTodos = controller.pendingTodosList;
 	const completedTodos = controller.completedTodosList;
-	const username = controller.user?.username;
+	const currentUserId = controller.user?._id;
 	const currentTab = controller.currentTabIndex;
 	const currentDetailedTodo = controller.detailedTodo;
-	const isModalOpen = controller.isAddTodoModalOpen;
+	const isAddModalOpen = controller.isAddTodoModalOpen;
+	const isEditModalOpen = controller.isEditTodoModalOpen;
 	const isDrawerOpen = controller.isDetailDrawerOpen;
 	const isPendingCollapseOpen = controller.isPendingCollapseOpen;
 	const isCompletedCollapseOpen = controller.isCompletedCollapseOpen;
-	const handleOpen = controller.onAddTodoClick;
+	const handleOpenAddModal = controller.onAddTodoClick;
+	const handleOpenEditModal = controller.onEditTodoClick;
 	const handleClose = controller.onModalClose;
 	const handleModalCloseClick = controller.onCloseModalClick;
 	const handleDrawerCloseClick = controller.onCloseDrawerClick;
 	const handleAddSubmit = controller.onAddTodoSubmit;
+	const handleEditSubmit = controller.onEditTodoSubmit;
 	const handlePendingCollapseClick = controller.onPendingCollapseClick;
 	const handleCompletedCollapseClick = controller.onCompletedCollapseClick;
 	const handleDetailTodoClick = controller.onDetailTodoClick;
@@ -67,7 +70,7 @@ const ToDosListView = () => {
 						unmountOnExit
 						onClick={handlePendingCollapseClick}
 					>
-						<TodoList todos={pendingTodos} currentUserName={username} onDetailClick={handleDetailTodoClick} />
+						<TodoList todos={pendingTodos} currentUser={currentUserId} onDetailClick={handleDetailTodoClick} />
 					</TodoCollapse>
 					
 					<TodoCollapse
@@ -78,12 +81,12 @@ const ToDosListView = () => {
 						unmountOnExit
 						onClick={handleCompletedCollapseClick}
 					>
-						<TodoList todos={completedTodos} currentUserName={username} onDetailClick={handleDetailTodoClick} />
+						<TodoList todos={completedTodos} currentUser={currentUserId} onDetailClick={handleDetailTodoClick} />
 					</TodoCollapse>
 
 					<TodoActionButton
 						startIcon={<AddIcon />}
-						onClick={handleOpen}
+						onClick={handleOpenAddModal}
 					>
 						Adicionar Tarefa
 					</TodoActionButton>
@@ -94,13 +97,15 @@ const ToDosListView = () => {
 
 				<TodoDetailDrawer 
 					open={isDrawerOpen} 
+					currentUser={currentUserId}
 					onCloseClick={handleDrawerCloseClick}
+					onEditTodoClick={handleOpenEditModal}
 					todo={currentDetailedTodo} 
 					anchor='right' 
 				/>
 			</TabSection>
 
-			<SysModal open={isModalOpen} onClose={handleClose}>
+			<SysModal open={isAddModalOpen} onClose={handleClose}>
 				<ModalHeader>
 					<Typography variant='h2'>Adicionar Tarefa</Typography>
 					<IconButton onClick={handleModalCloseClick} sx={{ width: '50px', height: '50px' }}>
@@ -109,6 +114,17 @@ const ToDosListView = () => {
 				</ModalHeader>
 				
 				<TodoForm onSubmit={handleAddSubmit} />
+			</SysModal>
+
+			<SysModal open={isEditModalOpen} onClose={handleClose}>
+				<ModalHeader>
+					<Typography variant='h2'>Editar Tarefa</Typography>
+					<IconButton onClick={handleModalCloseClick} sx={{ width: '50px', height: '50px' }}>
+						<CloseIcon />
+					</IconButton>
+				</ModalHeader>
+				
+				<TodoForm onSubmit={handleEditSubmit} todo={currentDetailedTodo} />
 			</SysModal>
 		</Fragment>
 	);

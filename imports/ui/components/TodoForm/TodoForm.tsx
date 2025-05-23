@@ -22,12 +22,12 @@ export const TodoForm = (props: TodoFormProps) => {
     const { todo, onSubmit } = props;
  
     return (
-        <SysForm schema={toDosSch} onSubmit={onSubmit} debugAlerts={false}>
+        <SysForm schema={toDosSch} onSubmit={onSubmit} debugAlerts={false} doc={todo}>
             <FormWrapper>
                 <FormInput>
                     <SysTextField 
                         name="name" 
-                        label="Título"  
+                        label="Título"
                         fullWidth 
                         placeholder="Dê um título para sua tarefa"
                     />
@@ -36,7 +36,7 @@ export const TodoForm = (props: TodoFormProps) => {
                 <FormInput>
                     <SysTextField 
                         name="description" 
-                        label="Descrição"  
+                        label="Descrição" 
                         fullWidth 
                         placeholder="Adicione aqui a descrição da tarefa"
                         multiline

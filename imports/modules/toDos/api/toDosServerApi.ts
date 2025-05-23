@@ -23,7 +23,7 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 
 			async (filter = {}, options = {}) => {
 				return this.defaultListCollectionPublication(filter, {
-					projection: { createdby: 1, name: 1, status: 1 },
+					projection: { userId: 1, name: 1, status: 1 },
 					...options
 				});
 			},
@@ -31,7 +31,7 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 			async (doc: Partial<IToDos>): Promise<Partial<IToDos> & {username: string}> => {
 				
 				const user: IUserProfile = await userprofileServerApi.getCollectionInstance().findOneAsync({
-					_id: doc.createdby
+					_id: doc.userId
 				}, {
 					fields: { username: 1 }
 				});
@@ -46,6 +46,7 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 		/** INÍCIO -- REGISTRO DE MÉTODOS */
 
 		this.registerMethod('addTodo', this.addTodo.bind(this));
+		this.registerMethod('editTodo', this.editTodo.bind(this));
 		this.registerMethod('findTodoById', this.findTodoById.bind(this));
 
 		/** FIM -- REGISTRO DE MÉTODOS */
@@ -56,20 +57,53 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 			name: string;
 			userId: string;
 			status: string;
-			isPersonal: false,
+			isPersonal: boolean,
 		}, 
 		context: IContext
 	): Promise<void>{
 
-		const todo: IToDos = { ...params, status: 'Cadastrada' };
+		const todo: IToDos = { ...params, status: 'Pendente' };
 		
 		this.serverInsert(todo, context);
 	}
 
-	public async findTodoById(id: string | undefined, context: IContext): Promise<Partial<IToDos>>{
-
-		return this.findOne({ _id: id }, { projection: { name: 1, description: 1, isPersonal: 1 }});
+	public async editTodo(
+		params: {
+			_id: string;
+			userId: string;
+			name: string;
+			status: string;
+			isPersonal: boolean;
+		},
+		context: IContext
+	): Promise<void>{
+		
+		const todo: IToDos = { ...params };
+		
+		this.serverUpdate(todo, context);
 	}
+
+	public async findTodoById(id: string | undefined, context: IContext): Promise<Partial<IToDos> & { username: string }> {
+		const todo = await this.findOne(
+			{ _id: id },
+			{ projection: { name: 1, description: 1, isPersonal: 1, userId: 1 } }
+		);
+
+		if (!todo) {
+			throw new Error("ToDo not found");
+		}
+
+		const user = await userprofileServerApi.getCollectionInstance().findOneAsync(
+			{ _id: todo.userId },
+			{ fields: { username: 1 } }
+		);
+
+		return {
+			...todo,
+			username: user?.username
+		};
+	}
+
 }
 
 export const toDosServerApi = new ToDosServerApi();

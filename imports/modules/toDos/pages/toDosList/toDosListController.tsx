@@ -19,8 +19,9 @@ interface IInitialConfig {
 
 	// Variáveis de controle/estado de componentes
 	currentTabIndex: number;
-	detailedTodo: Partial<IToDos>;
+	detailedTodo: Partial<IToDos> & { username: string };
 	isAddTodoModalOpen: boolean;
+	isEditTodoModalOpen: boolean;
 	isDetailDrawerOpen: boolean;
 	isCompletedCollapseOpen: boolean;
 	isPendingCollapseOpen: boolean;
@@ -32,13 +33,14 @@ interface IToDosListContollerContext {
 	// Coleções de dados e metadados
 	completedTodosList: (Partial<IToDos> & { username: string })[];
 	pendingTodosList: (Partial<IToDos> & { username: string })[];
-	detailedTodo: Partial<IToDos>;
+	detailedTodo: Partial<IToDos> & { username: string };
 	todosCount: number;
 	user: IUserProfile | undefined;
 
 	// Variáveis de controle de componentes
 	currentTabIndex: number;
 	isAddTodoModalOpen: boolean;
+	isEditTodoModalOpen: boolean;
 	isDetailDrawerOpen: boolean;
 	isCompletedCollapseOpen: boolean;
 	isPendingCollapseOpen: boolean;
@@ -48,6 +50,7 @@ interface IToDosListContollerContext {
 
 	// onClick
 	onAddTodoClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	onEditTodoClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	onCloseModalClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	onCloseDrawerClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	onDetailTodoClick: (id: string | undefined) => void;
@@ -60,6 +63,7 @@ interface IToDosListContollerContext {
 
 	// onSubmit
 	onAddTodoSubmit: ({ name, description, isPersonal }: { name: string; description: string; isPersonal: boolean }) => void;
+	onEditTodoSubmit: ({ _id, name, description, isPersonal }: { _id: string, name: string; description: string; isPersonal: boolean }) => void;
 	
 	// onClose
 	onModalClose: (event: React.SyntheticEvent | {}, reason: "backdropClick" | "escapeKeyDown") => void;
@@ -75,8 +79,9 @@ const InitialConfig = {
 	options: { limit: TODO_LIMIT, sort: { 'createdat': -1 } },
 	filter: {},
 	currentTabIndex: 0,
-	detailedTodo: {},
+	detailedTodo: { username: '' },
 	isAddTodoModalOpen: false,
+	isEditTodoModalOpen: false,
 	isDetailDrawerOpen: false,
 	isCompletedCollapseOpen: true,
 	isPendingCollapseOpen: true,
@@ -95,6 +100,7 @@ const ToDosListController = () => {
 		currentTabIndex,  
 		detailedTodo,
 		isAddTodoModalOpen,
+		isEditTodoModalOpen,
 		isDetailDrawerOpen,
 		isCompletedCollapseOpen,
 		isPendingCollapseOpen,
@@ -157,10 +163,18 @@ const ToDosListController = () => {
 		}))
 	}, []);
 
+	const onEditTodoClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+		setConfig((prev) => ({
+			...prev,
+			isEditTodoModalOpen: true
+		}))
+	}, []);
+
 	const onCloseModalClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
 		setConfig((prev) => ({
 			...prev,
-			isAddTodoModalOpen: false
+			isAddTodoModalOpen: false,
+			isEditTodoModalOpen: false
 		}))
 	}, []);
 
@@ -201,6 +215,36 @@ const ToDosListController = () => {
 					type: 'success',
 					title: 'Tudo pronto',
 					message: 'Sua tarefa foi adicionada com sucesso.',
+					showStartIcon: true,
+				});
+			}
+		});
+	}, []);
+
+	const onEditTodoSubmit = useCallback(({ _id, name, description, isPersonal }: { _id: string, name: string; description: string; isPersonal: boolean }) => {
+
+		const userId = user?._id;
+		
+		toDosApi.editTodo({ _id, userId, name, description, isPersonal }, (error, result) => {
+
+			setConfig((prev) => ({
+				...prev,
+				isEditTodoModalOpen: false,
+				isDetailDrawerOpen: false
+			}));
+
+			if (error) {
+				return showNotification({
+					type: 'error',
+					title: 'Erro na edição',
+					message: 'Não foi possível editar a tarefa.',
+					showStartIcon: true,
+				});
+			} else {
+				return showNotification({
+					type: 'success',
+					title: 'Alteração concluída',
+					message: 'Sua tarefa foi editada com sucesso.',
 					showStartIcon: true,
 				});
 			}
@@ -250,6 +294,7 @@ const ToDosListController = () => {
 			todosCount,
 			currentTabIndex,
 			isAddTodoModalOpen,
+			isEditTodoModalOpen,
 			isDetailDrawerOpen,
 			isCompletedCollapseOpen,
 			isPendingCollapseOpen,
@@ -257,6 +302,7 @@ const ToDosListController = () => {
 			onSearchBarChange,
 			onTabChange,
 			onAddTodoClick,
+			onEditTodoClick,
 			onCloseModalClick,
 			onCloseDrawerClick,
 			onDetailTodoClick,
@@ -264,6 +310,7 @@ const ToDosListController = () => {
 			onCompletedCollapseClick,
 			onModalClose,
 			onAddTodoSubmit,
+			onEditTodoSubmit,
         }), [pendingTodosList, completedTodosList, loading]
 	);
 

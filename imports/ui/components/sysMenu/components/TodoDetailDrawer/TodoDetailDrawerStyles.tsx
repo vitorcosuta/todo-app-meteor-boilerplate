@@ -11,6 +11,7 @@ interface ITodoDetailDrawerStyles {
     DrawerOptions: React.ElementType<BoxProps>;
     FieldText: React.ElementType<TypographyProps>;
     FieldTitle: React.ElementType<TypographyProps>;
+    CreatorInfo: React.ElementType<TypographyProps>;
     EditButton: React.ElementType<ButtonProps>;
 }
 
@@ -46,6 +47,11 @@ const TodoDetailDrawerStyles: ITodoDetailDrawerStyles = {
         fontSize: '18px',
         letterSpacing: '0.15%',
         lineHeight: '100%',
+    })),
+    CreatorInfo: styled(Typography)(({ theme }) => ({
+        color: theme.palette.divider,
+        fontWeight: '600',
+        fontSize: '12px',
     })),
     EditButton: styled(Button)(({ theme }) => ({
         width: '278px',

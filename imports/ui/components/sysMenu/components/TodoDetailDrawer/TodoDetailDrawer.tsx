@@ -9,11 +9,13 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from '@mui/icons-material/Close';
 
 interface ITodoDetailDrawerProps extends DrawerProps {
-    todo: Partial<IToDos>;
+    todo: Partial<IToDos> & { username: string };
+    currentUser: string | undefined;
     onCloseClick: React.MouseEventHandler<HTMLButtonElement>;
+    onEditTodoClick: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-export const TodoDetailDrawer = ({ todo, onCloseClick, ...drawerProps}: ITodoDetailDrawerProps) => {
+export const TodoDetailDrawer = ({ todo, currentUser, onCloseClick, onEditTodoClick, ...drawerProps}: ITodoDetailDrawerProps) => {
 
     const {
         DrawerContainer,
@@ -21,6 +23,7 @@ export const TodoDetailDrawer = ({ todo, onCloseClick, ...drawerProps}: ITodoDet
         DrawerOptions,
         FieldTitle,
         FieldText,
+        CreatorInfo,
         EditButton,
     } = TodoDetailDrawerStyles;
 
@@ -44,7 +47,11 @@ export const TodoDetailDrawer = ({ todo, onCloseClick, ...drawerProps}: ITodoDet
                 <FieldTitle>Tipo</FieldTitle>
                 <FieldText>{ todo.isPersonal ? 'Pessoal' : 'Pública' }</FieldText>
 
-                <EditButton variant="outlined">Editar</EditButton>
+                <EditButton variant="outlined" onClick={onEditTodoClick}>Editar</EditButton>
+
+                <DrawerOptions>
+                    <CreatorInfo>Criado por: { currentUser === todo.userId ? 'Você' : todo.username }</CreatorInfo>
+                </DrawerOptions>
             </DrawerContainer>
         </Drawer>
     );
