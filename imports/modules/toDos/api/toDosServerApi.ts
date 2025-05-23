@@ -46,6 +46,7 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 		/** INÍCIO -- REGISTRO DE MÉTODOS */
 
 		this.registerMethod('addTodo', this.addTodo.bind(this));
+		this.registerMethod('findTodoById', this.findTodoById.bind(this));
 
 		/** FIM -- REGISTRO DE MÉTODOS */
 	}
@@ -63,6 +64,11 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 		const todo: IToDos = { ...params, status: 'Cadastrada' };
 		
 		this.serverInsert(todo, context);
+	}
+
+	public async findTodoById(id: string | undefined, context: IContext): Promise<Partial<IToDos>>{
+
+		return this.findOne({ _id: id }, { projection: { name: 1, description: 1, isPersonal: 1 }});
 	}
 }
 

@@ -17,9 +17,9 @@ interface IInitialConfig {
 	filter: Object;
 	options: Object;
 
-	// Variáveis de controle de componentes
+	// Variáveis de controle/estado de componentes
 	currentTabIndex: number;
-	detailedTodoIndex: number;
+	detailedTodo: Partial<IToDos>;
 	isAddTodoModalOpen: boolean;
 	isDetailDrawerOpen: boolean;
 	isCompletedCollapseOpen: boolean;
@@ -32,12 +32,12 @@ interface IToDosListContollerContext {
 	// Coleções de dados e metadados
 	completedTodosList: (Partial<IToDos> & { username: string })[];
 	pendingTodosList: (Partial<IToDos> & { username: string })[];
+	detailedTodo: Partial<IToDos>;
 	todosCount: number;
 	user: IUserProfile | undefined;
 
 	// Variáveis de controle de componentes
 	currentTabIndex: number;
-	detailedTodoIndex: number;
 	isAddTodoModalOpen: boolean;
 	isDetailDrawerOpen: boolean;
 	isCompletedCollapseOpen: boolean;
@@ -49,7 +49,8 @@ interface IToDosListContollerContext {
 	// onClick
 	onAddTodoClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	onCloseModalClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-	onDetailTodoClick: (index: number) => void;
+	onCloseDrawerClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	onDetailTodoClick: (id: string | undefined) => void;
 	onPendingCollapseClick: (event: React.MouseEvent<HTMLDivElement>) => void;
 	onCompletedCollapseClick: (event: React.MouseEvent<HTMLDivElement>) => void;
 
@@ -74,7 +75,7 @@ const InitialConfig = {
 	options: { limit: TODO_LIMIT, sort: { 'createdat': -1 } },
 	filter: {},
 	currentTabIndex: 0,
-	detailedTodoIndex: 0,
+	detailedTodo: {},
 	isAddTodoModalOpen: false,
 	isDetailDrawerOpen: false,
 	isCompletedCollapseOpen: true,
@@ -91,8 +92,8 @@ const ToDosListController = () => {
 	const { 
 		filter, 
 		options, 
-		currentTabIndex, 
-		detailedTodoIndex, 
+		currentTabIndex,  
+		detailedTodo,
 		isAddTodoModalOpen,
 		isDetailDrawerOpen,
 		isCompletedCollapseOpen,
@@ -120,7 +121,7 @@ const ToDosListController = () => {
 
 		const pendingTodosList = subHandle?.ready() ? toDosApi.find({ status: { $ne: 'Concluída' }}, options).fetch() : [];
 		const completedTodosList = subHandle?.ready() ? toDosApi.find({ status: 'Concluída' }, options).fetch() : [];
-		
+
 		return {
 			pendingTodosList,
 			completedTodosList,
@@ -163,6 +164,13 @@ const ToDosListController = () => {
 		}))
 	}, []);
 
+	const onCloseDrawerClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+		setConfig((prev) => ({
+			...prev,
+			isDetailDrawerOpen: false
+		}))
+	}, []);
+
 	const onModalClose = useCallback<NonNullable<ModalProps["onClose"]>>(
 		(event: React.SyntheticEvent | {}, reason: "backdropClick" | "escapeKeyDown") => {
 			if (reason === "backdropClick") {
@@ -199,12 +207,24 @@ const ToDosListController = () => {
 		});
 	}, []);
 
-	const onDetailTodoClick = useCallback((index: number) => {
-		setConfig((prev) => ({
-			...prev,
-			isDetailDrawerOpen: true,
-			detailedTodo: index,
-		}))
+	const onDetailTodoClick = useCallback((id: string | undefined) => {
+
+		toDosApi.findTodoById(id, (error, result) => {
+			if (error) {
+				return showNotification({
+					type: 'error',
+					title: 'Erro na busca',
+					message: `A tarefa selecionada não foi encontrada. ${error}`,
+					showStartIcon: true,
+				});
+			} else {
+				setConfig((prev) => ({
+					...prev,
+					isDetailDrawerOpen: true,
+					detailedTodo: result,
+				}));
+			}
+		});
 	}, []);
 
 	const onPendingCollapseClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
@@ -225,10 +245,10 @@ const ToDosListController = () => {
 		() => ({
             pendingTodosList,
 			completedTodosList,
+			detailedTodo,
 			user,
 			todosCount,
 			currentTabIndex,
-			detailedTodoIndex,
 			isAddTodoModalOpen,
 			isDetailDrawerOpen,
 			isCompletedCollapseOpen,
@@ -238,6 +258,7 @@ const ToDosListController = () => {
 			onTabChange,
 			onAddTodoClick,
 			onCloseModalClick,
+			onCloseDrawerClick,
 			onDetailTodoClick,
 			onPendingCollapseClick,
 			onCompletedCollapseClick,
