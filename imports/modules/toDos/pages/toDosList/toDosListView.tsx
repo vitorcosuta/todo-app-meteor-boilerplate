@@ -46,6 +46,7 @@ const ToDosListView = () => {
 	const handlePendingCollapseClick = controller.onPendingCollapseClick;
 	const handleCompletedCollapseClick = controller.onCompletedCollapseClick;
 	const handleDetailTodoClick = controller.onDetailTodoClick;
+	const handleDeleteTodoClick = controller.onDeleteTodoClick;
 
 	return (
 		<Fragment>
@@ -70,7 +71,12 @@ const ToDosListView = () => {
 						unmountOnExit
 						onClick={handlePendingCollapseClick}
 					>
-						<TodoList todos={pendingTodos} currentUser={currentUserId} onDetailClick={handleDetailTodoClick} />
+						<TodoList 
+							todos={pendingTodos} 
+							currentUser={currentUserId} 
+							onDetailClick={handleDetailTodoClick} 
+							onDeleteClick={handleDeleteTodoClick}
+						/>
 					</TodoCollapse>
 					
 					<TodoCollapse
@@ -81,7 +87,12 @@ const ToDosListView = () => {
 						unmountOnExit
 						onClick={handleCompletedCollapseClick}
 					>
-						<TodoList todos={completedTodos} currentUser={currentUserId} onDetailClick={handleDetailTodoClick} />
+						<TodoList 
+							todos={completedTodos} 
+							currentUser={currentUserId} 
+							onDetailClick={handleDetailTodoClick}
+							onDeleteClick={handleDeleteTodoClick}
+						/>
 					</TodoCollapse>
 
 					<TodoActionButton

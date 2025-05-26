@@ -46,6 +46,7 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 		/** INÍCIO -- REGISTRO DE MÉTODOS */
 
 		this.registerMethod('addTodo', this.addTodo.bind(this));
+		this.registerMethod('deleteTodo', this.deleteTodo.bind(this));
 		this.registerMethod('editTodo', this.editTodo.bind(this));
 		this.registerMethod('findTodoById', this.findTodoById.bind(this));
 
@@ -65,6 +66,12 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 		const todo: IToDos = { ...params, status: 'Pendente' };
 		
 		this.serverInsert(todo, context);
+	}
+
+	public async deleteTodo(id: string | undefined, context: IContext): Promise<void> {
+
+		console.log(id);
+		// this.serverRemove({ _id: id }, context);
 	}
 
 	public async editTodo(

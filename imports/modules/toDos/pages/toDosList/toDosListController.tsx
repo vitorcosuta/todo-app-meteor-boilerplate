@@ -50,12 +50,14 @@ interface IToDosListContollerContext {
 
 	// onClick
 	onAddTodoClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-	onEditTodoClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	onCloseModalClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	onCloseDrawerClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-	onDetailTodoClick: (id: string | undefined) => void;
-	onPendingCollapseClick: (event: React.MouseEvent<HTMLDivElement>) => void;
 	onCompletedCollapseClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+	onDeleteTodoClick: (id: string | undefined) => void;
+	onDetailTodoClick: (id: string | undefined) => void;
+	onEditTodoClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	onPendingCollapseClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+	
 
 	// onChange
 	onSearchBarChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -162,6 +164,28 @@ const ToDosListController = () => {
 			isAddTodoModalOpen: true
 		}))
 	}, []);
+
+	const onDeleteTodoClick = useCallback((id: string | undefined) => {
+
+		toDosApi.deleteTodo(id, (error, result) => {
+			
+			if (error) {
+				return showNotification({
+					type: 'error',
+					title: 'Erro na remoção',
+					message: 'Não foi possível deletar a tarefa.',
+					showStartIcon: true,
+				});
+			} else {
+				return showNotification({
+					type: 'success',
+					title: 'Tudo pronto.',
+					message: 'Sua tarefa foi deletada com sucesso.',
+					showStartIcon: true,
+				});
+			}
+		});
+	}, [])
 
 	const onEditTodoClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
 		setConfig((prev) => ({
@@ -302,6 +326,7 @@ const ToDosListController = () => {
 			onSearchBarChange,
 			onTabChange,
 			onAddTodoClick,
+			onDeleteTodoClick,
 			onEditTodoClick,
 			onCloseModalClick,
 			onCloseDrawerClick,

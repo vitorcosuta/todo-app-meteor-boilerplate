@@ -14,6 +14,9 @@ class ToDosApi extends ProductBase<IToDos> {
 	addTodo = (params: object, callback: (error: IMeteorError, result: void) => void) => 
 		this.callMethod('addTodo', params, callback);
 
+	deleteTodo = (id: string | undefined, callback: (error: IMeteorError, result: void) => void) =>
+		this.callMethod('deleteTodo', id, callback);
+
 	editTodo = (params: object, callback: (error: IMeteorError, result: void) => void) =>
 		this.callMethod('editTodo', params, callback);
 
