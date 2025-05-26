@@ -37,7 +37,7 @@ const HomeController = () => {
     };
 
     const { loading, latestTodos } = useTracker(() => {
-        const subHandle = toDosApi.subscribe('latestToDos', {...queryParams}, options);
+        const subHandle = toDosApi.subscribe('ToDos', {...queryParams}, options);
 
         const latestTodos = subHandle?.ready() ? toDosApi.find().fetch() : [];
         
