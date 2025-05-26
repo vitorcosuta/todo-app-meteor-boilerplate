@@ -25,22 +25,30 @@ export const TodoList = (props: TodoListProps) => {
 
     const { currentUser, todos, onDetailClick, onDeleteClick } = props;
 
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
+    const [menu, setMenu] = React.useState<{ anchorEl: HTMLElement | null; todoId?: string }>({
+        anchorEl: null,
+        todoId: undefined,
+    });
+
+    const open = Boolean(menu.anchorEl);
     
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
+    const handleClick = (event: React.MouseEvent<HTMLElement>, todoId: string | undefined) => {
         event.stopPropagation();
+        setMenu({
+            anchorEl: event.currentTarget,
+            todoId,
+        });
     };
   
     const handleClose = () => {
-        setAnchorEl(null);
+        setMenu({ anchorEl: null, todoId: undefined });
     };
 
-    const handleDeleteClick = (id: string | undefined) => {
+    const handleDeleteClick = () => {
         handleClose();
-        console.log(id);
-        onDeleteClick(id);
+        if (menu.todoId) {
+            onDeleteClick(menu.todoId);
+        }
     };
 
     if (todos.length == 0) {
@@ -69,17 +77,17 @@ export const TodoList = (props: TodoListProps) => {
                             secondary={`Criada por: ${currentUser === todo.userId ? 'Você' : todo.username}`} 
                         />
 
-                        <IconButton onClick={handleClick}>
+                        <IconButton onClick={(e) => handleClick(e, todo._id)}>
                             <MoreVertIcon />
                         </IconButton>
                     </TodoListItem>
 
                     <ListItemMenu
-                        anchorEl={anchorEl}
+                        anchorEl={menu.anchorEl}
                         open={open}
                         onClose={handleClose}
                     >
-                        <MenuItem onClick={() => handleDeleteClick(todo._id)} disableRipple>
+                        <MenuItem onClick={handleDeleteClick} disableRipple>
                             <DeleteForeverIcon />
                             Deletar
                         </MenuItem>

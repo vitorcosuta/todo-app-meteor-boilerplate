@@ -70,8 +70,7 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 
 	public async deleteTodo(id: string | undefined, context: IContext): Promise<void> {
 
-		console.log(id);
-		// this.serverRemove({ _id: id }, context);
+		this.serverRemove({ _id: id }, context);
 	}
 
 	public async editTodo(
