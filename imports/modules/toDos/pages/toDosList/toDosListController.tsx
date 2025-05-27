@@ -19,6 +19,10 @@ interface IInitialConfig {
 
 	// Variáveis de controle/estado de componentes
 	currentTabIndex: number;
+	currentPendingPersonalPage: number;
+	currentPendingTeamPage: number;
+	currentCompletedPersonalPage: number;
+	currentCompletedTeamPage: number;
 	detailedTodo: Partial<IToDos> & { username: string };
 	isAddTodoModalOpen: boolean;
 	isEditTodoModalOpen: boolean;
@@ -31,14 +35,23 @@ interface IInitialConfig {
 interface IToDosListContollerContext {
 	
 	// Coleções de dados e metadados
-	completedTodosList: (Partial<IToDos> & { username: string })[];
-	pendingTodosList: (Partial<IToDos> & { username: string })[];
+	completedTeamTodosList: (Partial<IToDos> & { username: string })[];
+	completedPersonalTodosList: (Partial<IToDos> & { username: string })[];
+	pendingTeamTodosList: (Partial<IToDos> & { username: string })[];
+	pendingPersonalTodosList: (Partial<IToDos> & { username: string })[];
+	pendingTeamCount: number;
+	pendingPersonalCount: number;
+	completedTeamCount: number;
+	completedPersonalCount: number;
 	detailedTodo: Partial<IToDos> & { username: string };
-	todosCount: number;
 	user: IUserProfile | undefined;
 
 	// Variáveis de controle de componentes
 	currentTabIndex: number;
+	currentPendingPersonalPage: number;
+	currentPendingTeamPage: number;
+	currentCompletedPersonalPage: number;
+	currentCompletedTeamPage: number;
 	isAddTodoModalOpen: boolean;
 	isEditTodoModalOpen: boolean;
 	isDetailDrawerOpen: boolean;
@@ -62,6 +75,10 @@ interface IToDosListContollerContext {
 	// onChange
 	onSearchBarChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	onTabChange: (event: React.SyntheticEvent, newValue: number) => void;
+	onCompletedPersonalChange: (event: React.ChangeEvent<unknown>, newValue: number) => void;
+	onCompletedTeamChange: (event: React.ChangeEvent<unknown>, newValue: number) => void;
+	onPendingPersonalChange: (event: React.ChangeEvent<unknown>, newValue: number) => void;
+	onPendingTeamChange: (event: React.ChangeEvent<unknown>, newValue: number) => void;
 
 	// onSubmit
 	onAddTodoSubmit: ({ name, description, isPersonal }: { name: string; description: string; isPersonal: boolean }) => void;
@@ -78,9 +95,13 @@ export const ToDosListControllerContext = React.createContext<IToDosListContolle
 );
 
 const InitialConfig = {
-	options: { limit: TODO_LIMIT, sort: { 'createdat': -1 } },
+	options: { sort: { 'createdat': -1 } },
 	filter: {},
 	currentTabIndex: 0,
+	currentPendingPersonalPage: 1,
+	currentPendingTeamPage: 1,
+	currentCompletedPersonalPage: 1,
+	currentCompletedTeamPage: 1,
 	detailedTodo: { username: '' },
 	isAddTodoModalOpen: false,
 	isEditTodoModalOpen: false,
@@ -99,7 +120,11 @@ const ToDosListController = () => {
 	const { 
 		filter, 
 		options, 
-		currentTabIndex,  
+		currentTabIndex, 
+		currentCompletedPersonalPage,
+		currentCompletedTeamPage,
+		currentPendingPersonalPage,
+		currentPendingTeamPage, 
 		detailedTodo,
 		isAddTodoModalOpen,
 		isEditTodoModalOpen,
@@ -117,47 +142,85 @@ const ToDosListController = () => {
 			filter: {
 				...prev.filter,
 				$or: [
-					{ createdby: user._id },
+					{ userId: user._id },
 					{ isPersonal: false }
 				]
 			}
 		}));
 	}, [user?._id]);
 
-	const { loading, pendingTodosList, completedTodosList, todosCount } = useTracker(() => {
+	const {
+		loading,
+		pendingTeamTodosList,
+		pendingPersonalTodosList,
+		completedTeamTodosList,
+		completedPersonalTodosList,
+		pendingTeamCount,
+		pendingPersonalCount,
+		completedTeamCount,
+		completedPersonalCount,
+	} = useTracker(() => {
 		const subHandle = toDosApi.subscribe('ToDos', filter, options);
 
-		const pendingTodosList = subHandle?.ready() ? toDosApi.find({ status: { $ne: 'Concluída' }}, options).fetch() : [];
-		const completedTodosList = subHandle?.ready() ? toDosApi.find({ status: 'Concluída' }, options).fetch() : [];
+		const ready = subHandle?.ready();
+
+		const baseQuery = {
+			pendingTeam: { status: { $ne: 'Concluída' }, isPersonal: false },
+			pendingPersonal: { status: { $ne: 'Concluída' }, isPersonal: true },
+			completedTeam: { status: 'Concluída', isPersonal: false },
+			completedPersonal: { status: 'Concluída', isPersonal: true },
+		};
+
+		const pendingTeamSkip = (config.currentPendingTeamPage - 1) * TODO_LIMIT;
+		const pendingPersonalSkip = (config.currentPendingPersonalPage - 1) * TODO_LIMIT;
+		const completedTeamSkip = (config.currentCompletedTeamPage - 1) * TODO_LIMIT;
+		const completedPersonalSkip = (config.currentCompletedPersonalPage - 1) * TODO_LIMIT;
+
+		// Opções específicas por lista
+		const getOptions = (skip: number) => ({
+			sort: { createdAt: -1 },
+			limit: TODO_LIMIT,
+			skip,
+		});
+
+		// Counts ignoram skip/limit
+		const pendingTeamCount = toDosApi.find(baseQuery.pendingTeam).count();
+		const pendingPersonalCount = toDosApi.find(baseQuery.pendingPersonal).count();
+		const completedTeamCount = toDosApi.find(baseQuery.completedTeam).count();
+		const completedPersonalCount = toDosApi.find(baseQuery.completedPersonal).count();
+
+		// Fetch com paginação individual
+		const pendingTeamTodosList = ready
+			? toDosApi.find(baseQuery.pendingTeam, getOptions(pendingTeamSkip)).fetch()
+			: [];
+
+		const pendingPersonalTodosList = ready
+			? toDosApi.find(baseQuery.pendingPersonal, getOptions(pendingPersonalSkip)).fetch()
+			: [];
+
+		const completedTeamTodosList = ready
+			? toDosApi.find(baseQuery.completedTeam, getOptions(completedTeamSkip)).fetch()
+			: [];
+
+		const completedPersonalTodosList = ready
+			? toDosApi.find(baseQuery.completedPersonal, getOptions(completedPersonalSkip)).fetch()
+			: [];
 
 		return {
-			pendingTodosList,
-			completedTodosList,
-			loading: !!subHandle && !subHandle.ready(),
-			todosCount: subHandle ? subHandle.total : pendingTodosList.length
+			loading: !!subHandle && !ready,
+			pendingTeamTodosList,
+			pendingPersonalTodosList,
+			completedTeamTodosList,
+			completedPersonalTodosList,
+			pendingTeamCount,
+			pendingPersonalCount,
+			completedTeamCount,
+			completedPersonalCount,
 		};
 	}, [config]);
 
-	const onSearchBarChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-		const { value } = event.target;
 
-		const delayedSearch = setTimeout(() => {
-			setConfig((prev) => ({
-				...prev,
-				filter: { ...prev.filter, name: { $regex: value.trim(), $options: 'i' } }
-			}));
-		}, 1000);
-
-		return () => clearTimeout(delayedSearch);
-	}, []);
-
-	const onTabChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
-		setConfig((prev) => ({
-			...prev,
-			currentTabIndex: newValue
-		}))
-	}, []);
-	
+	/** EVENTOS onClick */
 	const onAddTodoClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
 		setConfig((prev) => ({
 			...prev,
@@ -209,13 +272,113 @@ const ToDosListController = () => {
 		}))
 	}, []);
 
-	const onModalClose = useCallback<NonNullable<ModalProps["onClose"]>>(
-		(event: React.SyntheticEvent | {}, reason: "backdropClick" | "escapeKeyDown") => {
-			if (reason === "backdropClick") {
-				return;
+	const onDetailTodoClick = useCallback((id: string | undefined) => {
+
+		toDosApi.findTodoById(id, (error, result) => {
+			if (error) {
+				return showNotification({
+					type: 'error',
+					title: 'Erro na busca',
+					message: `A tarefa selecionada não foi encontrada. ${error}`,
+					showStartIcon: true,
+				});
+			} else {
+				setConfig((prev) => ({
+					...prev,
+					isDetailDrawerOpen: true,
+					detailedTodo: result,
+				}));
 			}
+		});
 	}, []);
 
+	const onChangeTodoStatusClick = useCallback((todo: Partial<IToDos>) => {
+
+		toDosApi.changeTodoStatus(todo, (error, result) => {
+			
+			if (error) {
+				return showNotification({
+					type: 'error',
+					title: 'Erro na edição',
+					message: 'Não foi possível alterar o status da tarefa.',
+					showStartIcon: true,
+				});
+			} else {
+				return showNotification({
+					type: 'warning',
+					title: 'Alteração concluída',
+					message: 'O status da tarefa foi alterado.',
+					showStartIcon: true,
+				});
+			}
+		});
+	}, []);
+
+	const onPendingCollapseClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+		setConfig((prev) => ({
+			...prev,
+			isPendingCollapseOpen: !prev.isPendingCollapseOpen,
+		}))
+	}, []);
+
+	const onCompletedCollapseClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+		setConfig((prev) => ({
+			...prev,
+			isCompletedCollapseOpen: !prev.isCompletedCollapseOpen,
+		}))
+	}, []);
+
+	/** EVENTOS onChange */
+	const onSearchBarChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+		const { value } = event.target;
+
+		const delayedSearch = setTimeout(() => {
+			setConfig((prev) => ({
+				...prev,
+				filter: { ...prev.filter, name: { $regex: value.trim(), $options: 'i' } }
+			}));
+		}, 1000);
+
+		return () => clearTimeout(delayedSearch);
+	}, []);
+
+	const onTabChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
+		setConfig((prev) => ({
+			...prev,
+			currentTabIndex: newValue
+		}))
+	}, []);
+
+	const onCompletedPersonalChange = useCallback((event: React.ChangeEvent<unknown>, newValue: number) => {
+		setConfig((prev) => ({
+			...prev,
+			currentCompletedPersonalPage: newValue
+		}))
+	}, []);
+
+	const onCompletedTeamChange = useCallback((event: React.ChangeEvent<unknown>, newValue: number) => {
+		setConfig((prev) => ({
+			...prev,
+			currentCompletedTeamPage: newValue
+		}))
+	}, []);
+
+	const onPendingPersonalChange = useCallback((event: React.ChangeEvent<unknown>, newValue: number) => {
+		setConfig((prev) => ({
+			...prev,
+			currentPendingPersonalPage: newValue
+		}))
+	}, []);
+
+	const onPendingTeamChange = useCallback((event: React.ChangeEvent<unknown>, newValue: number) => {
+		setConfig((prev) => ({
+			...prev,
+			currentPendingTeamPage: newValue
+		}))
+	}, []);
+
+	
+	/** EVENTOS onSubmit */
 	const onAddTodoSubmit = useCallback(({ name, description, isPersonal }: { name: string; description: string; isPersonal: boolean }) => {
 		
 		const userId = user?._id;
@@ -275,70 +438,31 @@ const ToDosListController = () => {
 		});
 	}, []);
 
-	const onDetailTodoClick = useCallback((id: string | undefined) => {
-
-		toDosApi.findTodoById(id, (error, result) => {
-			if (error) {
-				return showNotification({
-					type: 'error',
-					title: 'Erro na busca',
-					message: `A tarefa selecionada não foi encontrada. ${error}`,
-					showStartIcon: true,
-				});
-			} else {
-				setConfig((prev) => ({
-					...prev,
-					isDetailDrawerOpen: true,
-					detailedTodo: result,
-				}));
+	/** EVENTOS onClose */
+	const onModalClose = useCallback<NonNullable<ModalProps["onClose"]>>(
+		(event: React.SyntheticEvent | {}, reason: "backdropClick" | "escapeKeyDown") => {
+			if (reason === "backdropClick") {
+				return;
 			}
-		});
-	}, []);
-
-	const onChangeTodoStatusClick = useCallback((todo: Partial<IToDos>) => {
-
-		toDosApi.changeTodoStatus(todo, (error, result) => {
-			
-			if (error) {
-				return showNotification({
-					type: 'error',
-					title: 'Erro na edição',
-					message: 'Não foi possível alterar o status da tarefa.',
-					showStartIcon: true,
-				});
-			} else {
-				return showNotification({
-					type: 'warning',
-					title: 'Alteração concluída',
-					message: 'O status da tarefa foi alterado.',
-					showStartIcon: true,
-				});
-			}
-		});
-	}, []);
-
-	const onPendingCollapseClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-		setConfig((prev) => ({
-			...prev,
-			isPendingCollapseOpen: !prev.isPendingCollapseOpen,
-		}))
-	}, []);
-
-	const onCompletedCollapseClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-		setConfig((prev) => ({
-			...prev,
-			isCompletedCollapseOpen: !prev.isCompletedCollapseOpen,
-		}))
 	}, []);
 
 	const providerValues: IToDosListContollerContext = useMemo(
 		() => ({
-            pendingTodosList,
-			completedTodosList,
+            pendingPersonalTodosList,
+			pendingTeamTodosList,
+			completedPersonalTodosList,
+			completedTeamTodosList,
+			pendingTeamCount,
+			pendingPersonalCount,
+			completedTeamCount,
+			completedPersonalCount,
 			detailedTodo,
 			user,
-			todosCount,
 			currentTabIndex,
+			currentCompletedPersonalPage,
+			currentCompletedTeamPage,
+			currentPendingPersonalPage,
+			currentPendingTeamPage,
 			isAddTodoModalOpen,
 			isEditTodoModalOpen,
 			isDetailDrawerOpen,
@@ -347,6 +471,10 @@ const ToDosListController = () => {
             loading,
 			onSearchBarChange,
 			onTabChange,
+			onCompletedPersonalChange,
+			onCompletedTeamChange,
+			onPendingPersonalChange,
+			onPendingTeamChange,
 			onAddTodoClick,
 			onChangeTodoStatusClick,
 			onDeleteTodoClick,
@@ -359,7 +487,7 @@ const ToDosListController = () => {
 			onModalClose,
 			onAddTodoSubmit,
 			onEditTodoSubmit,
-        }), [pendingTodosList, completedTodosList, loading]
+        }), [pendingPersonalTodosList, pendingTeamTodosList, completedPersonalTodosList, completedTeamTodosList, loading]
 	);
 
 	return (

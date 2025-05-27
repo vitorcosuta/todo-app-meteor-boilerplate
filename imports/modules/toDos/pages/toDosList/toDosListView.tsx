@@ -1,4 +1,4 @@
-import React, { useContext, Fragment } from 'react';
+import React, { useContext, Fragment, useMemo } from 'react';
 import ToDosListStyles from './toDosListStyles';
 import { TodoCollapse } from '/imports/ui/components/TodoCollapse/TodoCollapse';
 import { CustomTabPanel } from '/imports/ui/components/sysTabs/CustomTabPanel/CustomTabPanel';
@@ -15,7 +15,9 @@ import { SysModal } from '/imports/ui/components/sysModal/SysModal';
 import { TodoForm } from '/imports/ui/components/TodoForm/TodoForm';
 import { TodoList } from '/imports/ui/components/TodoList/TodoList';
 import { TodoDetailDrawer } from '/imports/ui/components/sysMenu/components/TodoDetailDrawer/TodoDetailDrawer';
+import { Pagination } from '@mui/material';
 
+const PAGE_SIZE = 4;
 
 const ToDosListView = () => {
 
@@ -26,16 +28,32 @@ const ToDosListView = () => {
 	} =  ToDosListStyles
 
 	const controller = useContext(ToDosListControllerContext);
-	const pendingTodos = controller.pendingTodosList;
-	const completedTodos = controller.completedTodosList;
+
+	// Coleções de dados e metadados
+	const pendingPersonalTodos = controller.pendingPersonalTodosList;
+	const pendingTeamTodos = controller.pendingTeamTodosList;
+	const completedPersonalTodos = controller.completedPersonalTodosList;
+	const completedTeamTodos = controller.completedTeamTodosList;
+	const pendingPersonalCount = controller.pendingPersonalCount;
+	const pendingTeamCount = controller.pendingTeamCount;
+	const completedPersonalCount = controller.completedPersonalCount;
+	const completedTeamCount = controller.completedTeamCount;
+
+	// Variáveis de estado/controle
 	const currentUserId = controller.user?._id;
 	const currentTab = controller.currentTabIndex;
+	const currentCompletedPersonalPage = controller.currentCompletedPersonalPage;
+	const currentCompletedTeamPage = controller.currentCompletedTeamPage;
+	const currentPendingPersonalPage = controller.currentPendingPersonalPage;
+	const currentPendingTeamPage = controller.currentPendingTeamPage;
 	const currentDetailedTodo = controller.detailedTodo;
 	const isAddModalOpen = controller.isAddTodoModalOpen;
 	const isEditModalOpen = controller.isEditTodoModalOpen;
 	const isDrawerOpen = controller.isDetailDrawerOpen;
 	const isPendingCollapseOpen = controller.isPendingCollapseOpen;
 	const isCompletedCollapseOpen = controller.isCompletedCollapseOpen;
+
+	// Eventos
 	const handleOpenAddModal = controller.onAddTodoClick;
 	const handleOpenEditModal = controller.onEditTodoClick;
 	const handleClose = controller.onModalClose;
@@ -48,24 +66,45 @@ const ToDosListView = () => {
 	const handleDetailTodoClick = controller.onDetailTodoClick;
 	const handleDeleteTodoClick = controller.onDeleteTodoClick;
 	const handleChangeStatusClick = controller.onChangeTodoStatusClick;
+	const handleCompletedPersonalPageChange = controller.onCompletedPersonalChange;
+	const handleCompletedTeamPageChange = controller.onCompletedTeamChange;
+	const handlePendingPersonalPageChange = controller.onPendingPersonalChange;
+	const handlePendingTeamPageChange = controller.onPendingTeamChange;
+
+	const completedPersonalPages = useMemo(() => {
+		return Math.ceil(completedPersonalCount / PAGE_SIZE);
+	}, [completedPersonalCount]);
+
+	const completedTeamPages = useMemo(() => {
+		return Math.ceil(completedTeamCount / PAGE_SIZE);
+	}, [completedTeamCount]);
+
+	const pendingPersonalPages = useMemo(() => {
+		return Math.ceil(pendingPersonalCount / PAGE_SIZE);
+	}, [pendingPersonalCount]);
+
+	const pendingTeamPages = useMemo(() => {
+		return Math.ceil(pendingTeamCount / PAGE_SIZE);
+	}, [pendingTeamCount]);
 
 	return (
 		<Fragment>
 			<TabHeader value={currentTab} onChange={controller.onTabChange} />
 
 			<TabSection id='tab-section'>
+
+				<SearchInput>
+					<SysTextField
+						name='search-term'
+						startAdornment={<SearchIcon />}
+						placeholder='Procurar tarefa'
+						onChange={controller.onSearchBarChange}
+					/>
+				</SearchInput>
+
 				<CustomTabPanel value={currentTab} index={0}>
-					<SearchInput>
-						<SysTextField
-							name='search-term'
-							startAdornment={<SearchIcon />}
-							placeholder='Procurar tarefa'
-							onChange={controller.onSearchBarChange}
-						/>
-					</SearchInput>
-					
 					<TodoCollapse
-						title='Não Concluídas'
+						title={`Não concluídas (${pendingPersonalCount})`}
 						open={isPendingCollapseOpen}
 						in={isPendingCollapseOpen} 
 						timeout="auto" 
@@ -73,16 +112,22 @@ const ToDosListView = () => {
 						onClick={handlePendingCollapseClick}
 					>
 						<TodoList 
-							todos={pendingTodos} 
+							todos={pendingPersonalTodos} 
 							currentUser={currentUserId} 
 							onDetailClick={handleDetailTodoClick} 
 							onDeleteClick={handleDeleteTodoClick}
 							onChangeStatusClick={handleChangeStatusClick}
 						/>
+
+						<Pagination
+							count={pendingPersonalPages}
+							page={currentPendingPersonalPage}
+							onChange={handlePendingPersonalPageChange}
+						/>
 					</TodoCollapse>
 					
 					<TodoCollapse
-						title='Concluídas'
+						title={`Concluídas (${completedPersonalCount})`}
 						open={isCompletedCollapseOpen}
 						in={isCompletedCollapseOpen} 
 						timeout="auto" 
@@ -90,24 +135,75 @@ const ToDosListView = () => {
 						onClick={handleCompletedCollapseClick}
 					>
 						<TodoList 
-							todos={completedTodos} 
+							todos={completedPersonalTodos} 
 							currentUser={currentUserId} 
 							onDetailClick={handleDetailTodoClick}
 							onDeleteClick={handleDeleteTodoClick}
 							onChangeStatusClick={handleChangeStatusClick}
 						/>
-					</TodoCollapse>
 
-					<TodoActionButton
-						startIcon={<AddIcon />}
-						onClick={handleOpenAddModal}
-					>
-						Adicionar Tarefa
-					</TodoActionButton>
+						<Pagination 
+							count={completedPersonalPages} 
+							page={currentCompletedPersonalPage}
+							onChange={handleCompletedPersonalPageChange}
+						/>
+					</TodoCollapse>
 				</CustomTabPanel>
+
 				<CustomTabPanel value={currentTab} index={1}>
-					Não há nada para ver aqui.
+					<TodoCollapse
+						title={`Não concluídas (${pendingTeamCount})`}
+						open={isPendingCollapseOpen}
+						in={isPendingCollapseOpen} 
+						timeout="auto" 
+						unmountOnExit
+						onClick={handlePendingCollapseClick}
+					>
+						<TodoList 
+							todos={pendingTeamTodos} 
+							currentUser={currentUserId} 
+							onDetailClick={handleDetailTodoClick} 
+							onDeleteClick={handleDeleteTodoClick}
+							onChangeStatusClick={handleChangeStatusClick}
+						/>
+
+						<Pagination 
+							count={pendingTeamPages}
+							page={currentPendingTeamPage}
+							onChange={handlePendingTeamPageChange}
+						/>
+					</TodoCollapse>
+					
+					<TodoCollapse
+						title={`Concluídas (${completedTeamCount})`}
+						open={isCompletedCollapseOpen}
+						in={isCompletedCollapseOpen} 
+						timeout="auto" 
+						unmountOnExit
+						onClick={handleCompletedCollapseClick}
+					>
+						<TodoList 
+							todos={completedTeamTodos} 
+							currentUser={currentUserId} 
+							onDetailClick={handleDetailTodoClick}
+							onDeleteClick={handleDeleteTodoClick}
+							onChangeStatusClick={handleChangeStatusClick}
+						/>
+
+						<Pagination 
+							count={completedTeamPages}
+							page={currentCompletedTeamPage}
+							onChange={handleCompletedTeamPageChange}
+						/>
+					</TodoCollapse>
 				</CustomTabPanel>
+
+				<TodoActionButton
+					startIcon={<AddIcon />}
+					onClick={handleOpenAddModal}
+				>
+					Adicionar Tarefa
+				</TodoActionButton>
 
 				<TodoDetailDrawer 
 					open={isDrawerOpen} 
