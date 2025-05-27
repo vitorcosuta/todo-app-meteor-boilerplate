@@ -5,21 +5,58 @@ import { toDosServerApi } from '../modules/toDos/api/toDosServerApi';
 
 const SEED_EMAIL = 'admin@mrb.com';
 const SEED_PASSWORD = 'admin@mrb.com';
-const INITIAL_TODO_STATUS = 'Pendente';
 
-const insertToDo = (todoName: string, user: Meteor.User | null | undefined) => {
+const insertPendingTeamToDo = (todoName: string, user: Meteor.User | null | undefined) => {
 
 	const doc = {
 		name: todoName,
 		userId: user?._id,
-		status: INITIAL_TODO_STATUS,
+		status: 'Pendente',
 		isPersonal: false,
+		createdat: new Date().toISOString(),
+	};
+
+	toDosServerApi.getCollectionInstance().insertAsync(doc);
+}
+
+const insertPendingPersonalToDo = (todoName: string, user: Meteor.User | null | undefined) => {
+
+	const doc = {
+		name: todoName,
+		userId: user?._id,
+		status: 'Pendente',
+		isPersonal: true,
+		createdat: new Date().toISOString(),
+	};
+
+	toDosServerApi.getCollectionInstance().insertAsync(doc);
+}
+
+const insertCompletedTeamToDo = (todoName: string, user: Meteor.User | null | undefined) => {
+
+	const doc = {
+		name: todoName,
+		userId: user?._id,
+		status: 'Concluída',
+		isPersonal: false,
+		createdat: new Date().toISOString(),
 	};
 
 	toDosServerApi.getCollectionInstance().insertAsync(doc);
 }
 	
-	
+const insertCompletedPersonalToDo = (todoName: string, user: Meteor.User | null | undefined) => {
+
+	const doc = {
+		name: todoName,
+		userId: user?._id,
+		status: 'Concluída',
+		isPersonal: true,
+		createdat: new Date().toISOString(),
+	};
+
+	toDosServerApi.getCollectionInstance().insertAsync(doc);
+}	
 
 async function createDefautUser() {
 	
@@ -69,7 +106,31 @@ async function createDefaultToDos(user: Meteor.User | null | undefined) {
 			"Fazer reunião de alinhamento",
 			"Definir prazos",
 			"Selecionar participantes para o primeiro grupo focal"
-		].forEach((todo: string) => insertToDo(todo, user));
+		].forEach((todo: string) => insertPendingPersonalToDo(todo, user));
+
+		[
+			"Organizar materiais de apoio",
+			"Montar apresentação inicial",
+			"Enviar convite aos participantes",
+			"Reservar sala para o grupo focal",
+			"Coletar dados preliminares"
+		].forEach((todo: string) => insertCompletedPersonalToDo(todo, user));
+
+		[
+			"Analisar respostas dos participantes",
+			"Consolidar feedbacks obtidos",
+			"Revisar roteiro elaborado",
+			"Validar metodologia aplicada",
+			"Criar formulário de inscrição"
+		].forEach((todo: string) => insertPendingTeamToDo(todo, user));
+
+		[
+			"Treinar facilitadores do grupo focal",
+			"Distribuir tarefas entre a equipe",
+			"Preparar relatório parcial",
+			"Agendar próximos encontros",
+			"Documentar principais aprendizados"
+		].forEach((todo: string) => insertCompletedTeamToDo(todo, user));
 	}
 }
 
