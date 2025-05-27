@@ -11,45 +11,66 @@ import MenuItem from '@mui/material/MenuItem';
 import TodoListStyles from "./TodoListStyles";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import RemoveDoneIcon from '@mui/icons-material/RemoveDone';
 
 interface TodoListProps {
     currentUser: string | undefined;
     todos: (Partial<IToDos> & { username: string })[];
     onDetailClick: (id: string | undefined) => void;
     onDeleteClick: (id: string | undefined) => void;
+    onChangeStatusClick: (todo: Partial<IToDos>) => void;
 }
 
 export const TodoList = (props: TodoListProps) => {
 
     const { TodoListItem, ListItemMenu } = TodoListStyles;
 
-    const { currentUser, todos, onDetailClick, onDeleteClick } = props;
+    const { 
+        currentUser, 
+        todos, 
+        onDetailClick, 
+        onDeleteClick,
+        onChangeStatusClick,
+    } = props;
 
-    const [menu, setMenu] = React.useState<{ anchorEl: HTMLElement | null; todoId?: string }>({
+    const [menu, setMenu] = React.useState<{ anchorEl: HTMLElement | null; todo: Partial<IToDos> | null }>({
         anchorEl: null,
-        todoId: undefined,
+        todo: null,
     });
 
     const open = Boolean(menu.anchorEl);
     
-    const handleClick = (event: React.MouseEvent<HTMLElement>, todoId: string | undefined) => {
+    const handleClick = (event: React.MouseEvent<HTMLElement>, todo: (Partial<IToDos> & { username: string }) | null) => {
+        
+        if (!todo) return;
+
+        const { username, ...partialTodo } = todo;
+
         event.stopPropagation();
         setMenu({
             anchorEl: event.currentTarget,
-            todoId,
+            todo: partialTodo,
         });
     };
   
     const handleClose = () => {
-        setMenu({ anchorEl: null, todoId: undefined });
+        setMenu({ anchorEl: null, todo: null });
     };
 
     const handleDeleteClick = () => {
         handleClose();
-        if (menu.todoId) {
-            onDeleteClick(menu.todoId);
+        if (menu.todo?._id) {
+            onDeleteClick(menu.todo._id);
         }
     };
+
+    const handleChangeStatusClick = () => {
+        handleClose();
+        if (menu.todo?._id && menu.todo?.status) {
+            onChangeStatusClick(menu.todo);
+        }
+    } 
 
     if (todos.length == 0) {
         return (
@@ -69,7 +90,7 @@ export const TodoList = (props: TodoListProps) => {
                         onClick={() => onDetailClick(todo._id)}
                     >
                         <ListItemIcon>
-                            {todo.status === 'Concluída' ? <TaskAltIcon fontSize="large" /> : <PanoramaFishEyeIcon fontSize="large" />}
+                            { todo.status === 'Concluída' ? <TaskAltIcon fontSize="large" /> : <PanoramaFishEyeIcon fontSize="large" /> }
                         </ListItemIcon>
                         
                         <ListItemText
@@ -77,7 +98,7 @@ export const TodoList = (props: TodoListProps) => {
                             secondary={`Criada por: ${currentUser === todo.userId ? 'Você' : todo.username}`} 
                         />
 
-                        <IconButton onClick={(e) => handleClick(e, todo._id)}>
+                        <IconButton onClick={(e) => handleClick(e, todo)}>
                             <MoreVertIcon />
                         </IconButton>
                     </TodoListItem>
@@ -90,6 +111,20 @@ export const TodoList = (props: TodoListProps) => {
                         <MenuItem onClick={handleDeleteClick} disableRipple>
                             <DeleteForeverIcon />
                             Deletar
+                        </MenuItem>
+
+                        <MenuItem onClick={handleChangeStatusClick}>
+                            { todo.status === 'Concluída' ? (
+                                <>
+                                    <RemoveDoneIcon />
+                                    Tornar pendente
+                                </>
+                                ):
+                                <>
+                                    <DoneAllIcon />
+                                    Concluir
+                                </> 
+                            }
                         </MenuItem>
                     </ListItemMenu>
                 </Fragment>

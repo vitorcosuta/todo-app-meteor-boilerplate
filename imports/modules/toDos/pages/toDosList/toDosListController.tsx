@@ -50,6 +50,7 @@ interface IToDosListContollerContext {
 
 	// onClick
 	onAddTodoClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	onChangeTodoStatusClick: (todo: Partial<IToDos>) => void;
 	onCloseModalClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	onCloseDrawerClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	onCompletedCollapseClick: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -57,7 +58,6 @@ interface IToDosListContollerContext {
 	onDetailTodoClick: (id: string | undefined) => void;
 	onEditTodoClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	onPendingCollapseClick: (event: React.MouseEvent<HTMLDivElement>) => void;
-	
 
 	// onChange
 	onSearchBarChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -295,6 +295,28 @@ const ToDosListController = () => {
 		});
 	}, []);
 
+	const onChangeTodoStatusClick = useCallback((todo: Partial<IToDos>) => {
+
+		toDosApi.changeTodoStatus(todo, (error, result) => {
+			
+			if (error) {
+				return showNotification({
+					type: 'error',
+					title: 'Erro na edição',
+					message: 'Não foi possível alterar o status da tarefa.',
+					showStartIcon: true,
+				});
+			} else {
+				return showNotification({
+					type: 'warning',
+					title: 'Alteração concluída',
+					message: 'O status da tarefa foi alterado.',
+					showStartIcon: true,
+				});
+			}
+		});
+	}, []);
+
 	const onPendingCollapseClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
 		setConfig((prev) => ({
 			...prev,
@@ -326,6 +348,7 @@ const ToDosListController = () => {
 			onSearchBarChange,
 			onTabChange,
 			onAddTodoClick,
+			onChangeTodoStatusClick,
 			onDeleteTodoClick,
 			onEditTodoClick,
 			onCloseModalClick,

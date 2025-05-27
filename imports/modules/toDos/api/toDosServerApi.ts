@@ -23,7 +23,7 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 
 			async (filter = {}, options = {}) => {
 				return this.defaultListCollectionPublication(filter, {
-					projection: { userId: 1, name: 1, status: 1 },
+					projection: { userId: 1, name: 1, status: 1, isPersonal: 1 },
 					...options
 				});
 			},
@@ -49,6 +49,7 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 		this.registerMethod('deleteTodo', this.deleteTodo.bind(this));
 		this.registerMethod('editTodo', this.editTodo.bind(this));
 		this.registerMethod('findTodoById', this.findTodoById.bind(this));
+		this.registerMethod('changeTodoStatus', this.changeTodoStatus.bind(this));
 
 		/** FIM -- REGISTRO DE MÉTODOS */
 	}
@@ -92,7 +93,7 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 	public async findTodoById(id: string | undefined, context: IContext): Promise<Partial<IToDos> & { username: string }> {
 		const todo = await this.findOne(
 			{ _id: id },
-			{ projection: { name: 1, description: 1, isPersonal: 1, userId: 1 } }
+			{ projection: { name: 1, description: 1, isPersonal: 1, userId: 1, status: 1 } }
 		);
 
 		if (!todo) {
@@ -108,6 +109,15 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 			...todo,
 			username: user?.username
 		};
+	}
+
+	public async changeTodoStatus(params: Partial<IToDos>, context: IContext): Promise<void> {
+
+		const todo: Partial<IToDos> = { ...params };
+
+		todo.status === 'Concluída' ? todo.status = 'Pendente' : todo.status = 'Concluída';
+
+		this.serverUpdate(todo, context);
 	}
 
 }

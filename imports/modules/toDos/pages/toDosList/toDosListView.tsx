@@ -47,6 +47,7 @@ const ToDosListView = () => {
 	const handleCompletedCollapseClick = controller.onCompletedCollapseClick;
 	const handleDetailTodoClick = controller.onDetailTodoClick;
 	const handleDeleteTodoClick = controller.onDeleteTodoClick;
+	const handleChangeStatusClick = controller.onChangeTodoStatusClick;
 
 	return (
 		<Fragment>
@@ -76,6 +77,7 @@ const ToDosListView = () => {
 							currentUser={currentUserId} 
 							onDetailClick={handleDetailTodoClick} 
 							onDeleteClick={handleDeleteTodoClick}
+							onChangeStatusClick={handleChangeStatusClick}
 						/>
 					</TodoCollapse>
 					
@@ -92,6 +94,7 @@ const ToDosListView = () => {
 							currentUser={currentUserId} 
 							onDetailClick={handleDetailTodoClick}
 							onDeleteClick={handleDeleteTodoClick}
+							onChangeStatusClick={handleChangeStatusClick}
 						/>
 					</TodoCollapse>
 
