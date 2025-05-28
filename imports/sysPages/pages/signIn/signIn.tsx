@@ -26,11 +26,27 @@ const SignInPage: React.FC = () => {
 
 	const handleSubmit = ({ email, password }: { email: string; password: string }) => {
 		signIn(email, password, (err) => {
-			if (!err) navigate('/');
+			if (err) {
+				showNotification({
+					type: 'error',
+					title: 'Erro ao tentar logar',
+					message: 'Email ou senha inválidos',
+				});
+			} else {
+				navigate('/');
+
+				showNotification({
+					type: 'success',
+					title: 'Acesso liberado',
+					message: 'Seja bem-vindo ao ToDo List.',
+				});
+			}
 		});
 ;	};
 
 	const handleForgotPassword = () => navigate('/password-recovery');
+
+	const handleSignUp = () => navigate('/signup');
 
 	useEffect(() => {
 		if (user) navigate('/');
@@ -89,7 +105,7 @@ const SignInPage: React.FC = () => {
 
 						<FormHelper>
 							<Typography>Novo por aqui?</Typography>
-							<SysLink component='button'>Cadastre-se</SysLink>
+							<SysLink component='button' onClick={handleSignUp}>Cadastre-se</SysLink>
 						</FormHelper>
 					</FormWrapper>
 				</SysForm>

@@ -4,15 +4,14 @@
 // login page overrides the form’s submit event and call Meteor’s loginWithPassword()
 // Authentication errors modify the component’s state to be displayed
 import React from 'react';
-import { Link, NavigateFunction } from 'react-router-dom';
-import Container from '@mui/material/Container';
+import { NavigateFunction, useNavigate } from 'react-router-dom';
 import TextField from '/imports/ui/components/SimpleFormFields/TextField/TextField';
-import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import { userprofileApi } from '../../../modules/userprofile/api/userProfileApi';
 import SimpleForm from '/imports/ui/components/SimpleForm/SimpleForm';
+import SysLink from '/imports/ui/components/sysLink/sysLink';
 
-import { signUpStyle } from './signUpStyle';
-import Box from '@mui/material/Box';
+import { SignUpStyles } from './signUpStyles';
 import { IUserProfile } from '/imports/modules/userprofile/api/userProfileSch';
 
 interface ISignUp {
@@ -22,7 +21,12 @@ interface ISignUp {
 }
 
 export const SignUp = (props: ISignUp) => {
+	
 	const { showNotification } = props;
+
+	const { Container, FormButton, FormInput, FormRouter } = SignUpStyles;
+
+	const navigate = useNavigate();
 
 	const handleSubmit = (doc: { email: string; password: string }) => {
 		const { email, password } = doc;
@@ -47,12 +51,12 @@ export const SignUp = (props: ISignUp) => {
 		});
 	};
 
+	const handleGoToSignUp = () => navigate('/signin');
+
 	return (
-		<Container style={signUpStyle.containerSignUp}>
-			<Box sx={signUpStyle.labelRegisterSystem}>
-				<img src="/images/wireframe/logo.png" style={signUpStyle.imageLogo} />
-				{'Cadastrar no sistema'}
-			</Box>
+		<Container>
+			
+			<Typography variant='h2'>Cadastre-se agora!</Typography>
 			<SimpleForm
 				schema={{
 					email: {
@@ -67,20 +71,26 @@ export const SignUp = (props: ISignUp) => {
 					}
 				}}
 				onSubmit={handleSubmit}>
-				<TextField id="Email" label="Email" fullWidth name="email" type="email" placeholder="Digite um email" />
-				<TextField id="Senha" label="Senha" fullWidth name="password" placeholder="Digite uma senha" type="password" />
-				<Box sx={signUpStyle.containerButtonOptions}>
-					<Button color={'primary'} variant={'outlined'} id="submit">
+
+				<FormInput>
+					<TextField id="Email" label="Email" fullWidth name="email" type="email" placeholder="Digite um email" />
+				</FormInput>
+				
+				<FormInput>
+					<TextField id="Senha" label="Senha" fullWidth name="password" placeholder="Digite uma senha" type="password" />
+				</FormInput>
+				
+				<FormInput>
+					<FormButton id='submit' type='submit'>
 						Cadastrar
-					</Button>
-				</Box>
+					</FormButton>
+				</FormInput>
+		
 			</SimpleForm>
-			<Box sx={signUpStyle.containerRouterSignIn}>
-				Já tem uma conta? Faça login clicando{' '}
-				<Link to="/signin" color={'secondary'}>
-					aqui
-				</Link>
-			</Box>
+			<FormRouter>
+				<Typography>Já tem uma conta?</Typography>
+				<SysLink component='button' onClick={handleGoToSignUp}>Fazer login</SysLink>
+			</FormRouter>
 		</Container>
 	);
 };

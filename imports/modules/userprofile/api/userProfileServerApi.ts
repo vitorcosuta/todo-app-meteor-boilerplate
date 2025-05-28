@@ -221,7 +221,8 @@ class UserProfileServerApi extends ProductServerBase<IUserProfile> {
 								profile: {
 									name: dataObj.username,
 									email: dataObj.email
-								}
+								},
+								'emails.0.verified': true
 							}
 						}
 					);
@@ -236,7 +237,8 @@ class UserProfileServerApi extends ProductServerBase<IUserProfile> {
 									name: dataObj.username,
 									email: dataObj.email
 								},
-								roles: dataObj.roles
+								roles: dataObj.roles,
+								'emails.0.verified': true
 							}
 						}
 					);
@@ -350,13 +352,6 @@ class UserProfileServerApi extends ProductServerBase<IUserProfile> {
 	}
 
 	async afterInsert(doc: IUserProfileEstendido, _context: IContext) {
-		if (Meteor.isServer) {
-			if (doc.password) {
-				Accounts.sendVerificationEmail(doc._id!);
-			} else {
-				Accounts.sendEnrollmentEmail(doc._id!);
-			}
-		}
 	}
 
 	async beforeUpdate(docObj: IUserProfile, context: IContext) {
